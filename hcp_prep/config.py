@@ -1,0 +1,331 @@
+import os
+import sys
+from util import *
+from multiprocessing import Pool, cpu_count
+
+SCAN_TYPES = [
+    'bold',
+    'bold_sbref',
+    'fieldmap_magnitude',
+    'fieldmap_phase',
+    'fieldmap_ap',
+    'fieldmap_lr',
+    'fieldmap_pa',
+    'fieldmap_rl',
+    't1',
+    't2']
+
+TEMPL_KEYS = [
+    "templates_dir",
+    "t1_template",
+    "t1_template_brain",
+    "t1_template_2mm",
+    "t2_template",
+    "t2_template_brain",
+    "t2_template_2mm",
+    "template_mask",
+    "template_2mm_mask",
+    "surf_atlas_dir",
+    "grayordinates_dir",
+    "ref_myelin_maps",
+    ]
+
+CONF_FILE_KEYS = [
+    "fnirt_config",
+    "grad_distort_coeffs",
+    "subcort_gray_labels",
+    "freesurfer_labels",
+    "top_up_config",]
+
+CONF_FILE_DEFAULTS = [
+    "%(hcp_dir)s/global/config/T1_2_MNI152_2mm.cnf",
+    "%(hcp_dir)s/global/config/coeff_SC72C_Skyra.grad",
+    "%(hcp_dir)s/global/config/FreeSurferSubcorticalLabelTableLut.txt",
+    "%(hcp_dir)s/global/config/FreeSurferAllLut.txt",
+    "%(hcp_dir)s/global/config/b02b0.cnf",]
+
+POS_FIELDMAPS = ["fieldmap_rl", "fieldmap_ap"]
+NEG_FIELDMAPS = ["fieldmap_lr", "fieldmap_pa"]
+YES_WORDS = [1,"1","y","Y","yes","Yes","YES"]
+NO_WORDS = [0,"0","n","N","no","No","NO"]
+
+def setup_conf():
+    import ConfigParser
+    import os
+    # get name for conf file
+    name = raw_input("New config file name [hcp.conf]: ")
+    name = name.strip()
+    name = name if name else "hcp.conf"
+    name = name if (len(name) > 5 and name[-5:] == ".conf") else name + ".conf"
+    # make sure that file doesn't already exist
+    if os.path.exists(name):
+        print "File already exists."
+        return
+    # get the directory containing all data for all subjects
+    print "\nThe subjects diretory should contain all raw data for all subjects."
+    subs_dir = raw_input("Subjects Directory [./]: ")
+    subs_dir = subs_dir.strip()
+    subs_dir = subs_dir if subs_dir else "./"
+    subs_dir = os.path.abspath(subs_dir)
+    # get the template used for getting form the subject dir to the dicoms
+    print "\nThe DICOM template should be a format string for a glob which, " + \
+          "when combined with an individual subject ID, will get us all of " + \
+          "the subject's DICOM files."
+    dcm_temp = raw_input("DICOM template [data/raw_dicom/%s/*.dcm]: ")
+    dcm_temp = dcm_temp.strip()
+    dcm_temp = dcm_temp if dcm_temp else "data/raw_dicom/%s/*.dcm"
+    dcm_temp = dcm_temp if ".dcm" in dcm_temp else os.path.join(dcm_temp, "*.dcm")
+    # get a list of subjects
+    print "Subjects should be a comma separated list of subject ids."
+    subs = raw_input("Subject list ['']: ")
+    subs = subs.strip()
+    # set up config obj
+    config = ConfigParser.ConfigParser()
+    # get the basics
+    config.remove_section("general")
+    config.add_section("general")
+    config.set("general", "subjects", subs)
+    config.set("general", "subject_dir", subs_dir)
+    config.set("general", "dicom_template", dcm_temp)
+    # write the config file
+    with open(name, "wb") as f:
+        config.write(f)
+    update_conf(name)
+
+def get_series_desc(dicom_path):
+    import dicom
+    d = dicom.read_file(dicom_path)
+    sd = getattr(d, "SeriesDescription", None)
+    return sd
+
+def templ_defaults_for_rez(rez):
+    if rez in [.7, .8]:
+        rez = "%0.1f" % rez
+    elif rez in [1]:
+        rez = "%1.f" % rez
+    else:
+        return None
+    return [
+        "%%(hcp_dir)s/global/templates",
+        "%%(templates_dir)s/MNI152_T1_%smm.nii.gz" % rez,
+        "%%(templates_dir)s/MNI152_T1_%smm_brain.nii.gz" % rez,
+        "%%(templates_dir)s/MNI152_T1_2mm.nii.gz",
+        "%%(templates_dir)s/MNI152_T2_%smm.nii.gz" % rez,
+        "%%(templates_dir)s/MNI152_T2_%smm_brain.nii.gz" % rez,
+        "%%(templates_dir)s/MNI152_T2_2mm.nii.gz",
+        "%%(templates_dir)s/MNI152_T1_%smm_brain_mask.nii.gz" % rez,
+        "%%(templates_dir)s/MNI152_T1_2mm_brain_mask_dil.nii.gz",
+        "%%(templates_dir)s/standard_mesh_atlases",
+        "%%(templates_dir)s/91282_Greyordinates",
+        "%%(templates_dir)s/standard_mesh_atlases/Conte69.MyelinMap_BC.164k_fs_LR.dscalar.nii"]
+
+def update_conf(conf_path):
+    import os
+    import sys
+    from glob import glob
+    import ConfigParser
+    import dicom
+    from time import sleep
+    from numpy import unique
+    # TODO: make sure conf is there
+    config = ConfigParser.ConfigParser()
+    config.read(conf_path)
+    # update the series map if needed or desired
+    needs_smap = not config.has_section("series")
+    if not needs_smap:
+        needs_smap = raw_input("Do you want to re-map the series descriptions y/[n]? ").strip() in YES_WORDS
+    if needs_smap:
+        # get list of all sequence descriptions
+        s = config.get("general","subject_dir")
+        t = config.get("general","dicom_template") % "*"
+        dicoms = glob(os.path.join(s,t))
+        message = "\rChecking series names (this may take some time) %s"
+        dcm_count = len(dicoms)
+        pool = Pool(processes=min(15, cpu_count()/2))
+        result = pool.map_async(get_series_desc, dicoms)
+        while not result.ready():
+            sleep(.5)
+            # perc = float(dcm_count - result._number_left) / float(dcm_count)
+            # perc = "(%d%%)..." % int(round(perc * 100))
+            perc = "(%d chunks remaining)..." % result._number_left
+            m = message % perc
+            sys.stdout.write(m)
+            sys.stdout.flush()
+        series = unique(result.get()).tolist()
+        if None in series:
+            series.remove(None)
+        found = "\nFound %d unique series descriptions.\n" % len(series)
+        sys.stdout.write(found)
+        # message if we didn't find anything
+        if not series:
+            raise ValueError("couldn't find any dicoms! please double check your paths and templates...")
+        # update the series confg
+        series.sort()
+        print "-------\nSeries:\n-------"
+        print "\n".join(["%d:\t%s" % (i, ser) for i,ser in enumerate(series)]) + "\n"
+        type_matches = dict(zip(SCAN_TYPES, [[] for s in SCAN_TYPES]))
+        i = 0
+        series_count = len(series)
+        while i < len(SCAN_TYPES):
+            ft = SCAN_TYPES[i]
+            m = raw_input("\nWhich series do you use for '%s'?\n[None] or comma separated values 0-%d: " % (ft, len(series)-1)).strip()
+            if not m:
+                i += 1
+                continue
+            try:
+                m = [int(n) for n in m.split(",")]
+                if any([n < 0 or n >= series_count for n in m]):
+                    raise ValueError()
+            except Exception, e:
+                print "Invalid Selection..."
+                continue
+            i += 1
+            for n in m:
+                type_matches[ft].append(series[n])
+        config.remove_section("series")
+        config.add_section("series")
+        for key in sorted(type_matches.keys()):
+            config.set("series", key, ", ".join(type_matches[key]))
+    # freesurfer home (defaults)
+    d_val = os.environ.get("FREESURFER_HOME", "")
+    fsh = raw_input("Path for FREESURFER_HOME [%s]: " % d_val).strip()
+    fsh = fsh if fsh else d_val
+    config.set("DEFAULT", "freesurfer_home", fsh)
+    # fsl dir (defaults)
+    d_val = os.environ.get("FSLDIR", "")
+    fslh = raw_input("Path for FSLDIR [%s]: " % d_val).strip()
+    fslh = fslh if fslh else d_val
+    config.set("DEFAULT", "fsl_dir", fslh)
+    # hcp dir (defaults)
+    hcph = raw_input("Path to HCP Pipelines dir [ ]: ").strip()
+    config.set("DEFAULT", "hcp_dir", hcph)
+    # template file locations (templates)
+    rez = raw_input("What is your structural image resolution (mm)?\n[Skip] or one of (.7, .8, 1): ").strip()
+    rez = float_or_none(rez)
+    rez_temps = None
+    def_t = False
+    if rez:
+        rez_temps = templ_defaults_for_rez(rez)
+    if rez_temps:
+        def_t = raw_input("Use default template files for resolution %0.1f [y]/n? " % rez).strip() not in NO_WORDS
+        if def_t:
+            t_vals = rez_temps
+    if not t_vals:
+        t_vals = ['' for k in TEMPL_KEYS]
+    config.remove_section("templates")
+    config.add_section("templates")
+    for i, key in enumerate(TEMPL_KEYS):
+        config.set("templates", key, t_vals[i])
+    if not def_t:
+        print "\nWhen finished, please open your config file to set the tamplate locations manually.\n"
+    # config file locations (config_files)
+    def_c = raw_input("Use default config files [y]/n?").strip() not in NO_WORDS
+    c_vals = CONF_FILE_DEFAULTS if def_c else ['' for k in CONF_FILE_KEYS]
+    config.remove_section("config_files")
+    config.add_section("config_files")
+    for i, key in enumerate(CONF_FILE_KEYS):
+        config.set("config_files", key, c_vals[i])
+    if not def_c:
+        print "\nWhen finished, please open your config file to set the other config file locations manually.\n"
+    # add a section for the damned unwarpdir variable... sigh
+    if not config.has_section("nifti_wrangler"):
+        config.add_section("nifti_wrangler")
+        config.set("nifti_wrangler", "ep_unwarp_dir", "x")
+        print "\nWhen finished, please open your config file check the value for ep_unwarp_dir.\n"
+    # write the file!
+    with open(conf_path, "wb") as f:
+        config.write(f)
+
+def select_conf():
+    # if there"s only one conf around, select it. otherwise, offer a choice.
+    from glob import glob
+    confs = glob("./*.conf")
+    if not confs:
+        raise ValueError("Could not find any .conf files in current directory.")
+    if len(confs) == 1:
+        return confs[0]
+    return numbered_choice(confs)
+
+def validate_config(conf_dict):
+    """ validates the config dict
+    return: True if it passes, False if it fails
+    """
+    # TODO: more of this
+    # make sure we can get an env out of it
+    try:
+        get_hcp_env_for_config(conf_dict)
+        get_hcp_commands_for_config(conf_dict)
+    except Exception, e:
+        return False
+    return True
+
+def numbered_choice(choices, allow_none=False, skip_list=False):
+    # TODO: print a choice, return the chosen value
+    return choices[0]
+
+def get_config_dict(conf_path):
+    import ConfigParser
+    config = ConfigParser.ConfigParser()
+    config.read(conf_path)
+    # default section isn't in .sections(), so we'll grab it here
+    confd = {'default':dict(config.defaults())}
+    dks = confd['default'].keys()
+    for sect in config.sections():
+        confd[sect] = dict([t for t in config.items(sect) if not t[0] in dks])
+    # turn subjects into a proper list
+    ds = confd["general"].get("subjects", None)
+    if ds:
+        confd["general"]["subjects"] = [a.strip() for a in ds.split(",")]
+    # turn series description mappings into lists
+    ss = confd.get("series", None)
+    if ss:
+        for k, v in ss.iteritems():
+            ss[k] = [a.strip() for a in v.split(",")] if v and isinstance(v,str) else []
+        confd["series"] = ss
+    return confd
+
+def get_hcp_env_for_config(conf_dict):
+    # exceptions will be raised if config isn't good.
+    # hint: we call this from the validation method!
+    d = conf_dict["default"]
+    dp = lambda x: os.path.join(d["hcp_dir"], x)
+    return {
+        "FSLDIR":d["fsl_dir"],
+        "FREESURFER":d["freesurfer_home"],
+        "HCPPIPEDIR":d["hcp_dir"],
+        "CARET7DIR":dp("global/binaries/caret7/bin_rh_linux64"),
+        "HCPPIPEDIR_Templates":dp("global/templates"),
+        "HCPPIPEDIR_Bin":dp("global/binaries"),
+        "HCPPIPEDIR_Config":dp("global/config"),
+        "HCPPIPEDIR_PreFS":dp("PreFreeSurfer/scripts"),
+        "HCPPIPEDIR_FS":dp("FreeSurfer/scripts"),
+        "HCPPIPEDIR_PostFS":dp("PostFreeSurfer/scripts"),
+        "HCPPIPEDIR_fMRISurf":dp("fMRISurface/scripts"),
+        "HCPPIPEDIR_fMRIVol":dp("fMRIVolume/scripts"),
+        "HCPPIPEDIR_tfMRI":dp("tfMRI/scripts"),
+        "HCPPIPEDIR_dMRI":dp("DiffusionPreprocessing/scripts"),
+        "HCPPIPEDIR_dMRITract":dp("DiffusionTractography/scripts"),
+        "HCPPIPEDIR_Global":dp("global/scripts"),
+        "HCPPIPEDIR_tfMRIAnalysis":dp("TaskfMRIAnalysis/scripts"),
+        "MSMBin":dp("MSMBinaries"),
+        }
+
+def get_hcp_commands_for_config(conf_dict):
+    # exceptions will be raised if config isn't good.
+    # hint: we call this from the validation method!
+    dp = lambda x: os.path.join(conf_dict["default"]["hcp_dir"], x)
+    return [
+        dp("PreFreeSurfer/PreFreeSurferPipeline.sh"),
+        dp("FreeSurfer/FreeSurferPipeline.sh"),
+        dp("PostFreeSurfer/PostFreeSurferPipeline.sh"),
+        dp("fMRIVolume/GenericfMRIVolumeProcessingPipeline.sh"),
+        dp("fMRISurface/GenericfMRISurfaceProcessingPipeline.sh"),
+        ]
+
+def apply_dict_to_obj(the_d, obj, skip_names=[]):
+    if not the_d:
+        return
+    for name, val in the_d.iteritems():
+        if name in skip_names or "traits" not in dir(obj) or name not in obj.traits().keys():
+            continue
+        setattr(obj, name, val)

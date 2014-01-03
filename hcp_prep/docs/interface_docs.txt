@@ -1,0 +1,625 @@
+HCDcm2nii
+=========
+Wraps command **dcm2nii**
+
+We override to fix a bug in output listing...
+
+Inputs::
+
+	[Mandatory]
+	source_names: (an existing file name)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+	[Optional]
+	anonymize: (a boolean)
+	args: (a string)
+		Additional parameters to the command
+	config_file: (an existing file name)
+	convert_all_pars: (a boolean)
+	environ: (a dictionary with keys which are a value of type 'str' and
+		 with values which are a value of type 'str', nipype default value:
+		 {})
+		Environment variables
+	gzip_output: (a boolean, nipype default value: False)
+	id_in_filename: (a boolean, nipype default value: False)
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+	nii_output: (a boolean, nipype default value: True)
+	output_dir: (an existing directory name)
+	reorient: (a boolean)
+	reorient_and_crop: (a boolean)
+	source_names: (an existing file name)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+Outputs::
+
+	bvals: (an existing file name)
+	bvecs: (an existing file name)
+	converted_files: (an existing file name)
+	reoriented_and_cropped_files: (an existing file name)
+	reoriented_files: (an existing file name)
+
+DicomInfo
+=========
+
+Inputs::
+
+	[Mandatory]
+	files: (a list of items which are an existing file name or an
+		 existing file name)
+		a list of dicom files from which to extract data
+
+	[Optional]
+	files: (a list of items which are an existing file name or an
+		 existing file name)
+		a list of dicom files from which to extract data
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+
+Outputs::
+
+	info: (a list of items which are a dictionary with keys which are any
+		 value and with values which are any value)
+		an ordered list of dicts, all in the same directory.
+
+NiiWrangler
+===========
+
+Inputs::
+
+	[Mandatory]
+	dicom_info: (a list of items which are any value)
+		one dict for each series in the session, in the order they were run.
+		each dict should contain at least the series_num (int) and the
+		series_desc (str).
+	nii_files: (a list of items which are an existing file name or an
+		 existing file name)
+		a list of nifti files to be categorized, matched up, etc.
+
+	[Optional]
+	dicom_info: (a list of items which are any value)
+		one dict for each series in the session, in the order they were run.
+		each dict should contain at least the series_num (int) and the
+		series_desc (str).
+	ep_echo_spacing: ('NONE' or a float)
+		 The effective echo spacing of your BOLD images. Already accounts
+		 for whether or not iPAT (acceleration in the phase direction) was
+		 used. If you're using acceleration, then the EES is not going to
+		 match the 'Echo Spacing' that Siemen's reports in the console.
+		 Setting this value will prevent any attempt to derive it.
+	ep_unwarp_dir: ('x' or 'x-' or 'y' or 'y-' or 'z' or 'z-')
+		Setting this value will prevent any attempt to derive it.
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+	nii_files: (a list of items which are an existing file name or an
+		 existing file name)
+		a list of nifti files to be categorized, matched up, etc.
+	series_map: (a dictionary with keys which are a string and with
+		 values which are a list of items which are any value, nipype
+		 default value: {})
+		keys are any member of SCAN_TYPES, values are lists of series
+		descriptions as recorded in DICOM headers.
+
+Outputs::
+
+	bold_names: (a list of items which are a string)
+		a list of names for the bold images. Length must match number of
+		bold images.
+	bolds: (a list of items which are an existing file name)
+		a list of BOLD niftis in chronological order.
+	ep_echo_spacings: (a list of items which are 'NONE' or a float,
+		 nipype default value: ['NONE'])
+		 The effective echo spacing of your BOLD images. Already accounts
+		 for whether or not iPAT (acceleration in the phase direction) was
+		 used. If you're using acceleration, then the EES is not going to
+		 match the 'Echo Spacing' that Siemen's reports in the console.
+		 This value will be derived, if not overridden by the input of the
+		 same name. Please inspect the value after your initial run of the
+		 pipeline to ensure that it's sane.
+		 Length must match number of bold images.
+	ep_unwarp_dirs: (a list of items which are 'x' or 'x-' or 'y' or 'y-'
+		 or 'z' or 'z-')
+		Length must match number of bold images.
+	fieldmap_te: ('NONE' or a float, nipype default value: NONE)
+		delta TE in ms for magnitude fieldmap or 'NONE' if not used.
+	mag_fieldmap: ('NONE' or a file name, nipype default value: NONE)
+		magnitude fieldmap image for structural images. first matching image
+		will be used.
+	neg_fieldmaps: (a list of items which are an existing file name)
+		a list of negative fieldmap niftis. Length must match number of bold
+		images.
+	phase_fieldmap: ('NONE' or a file name, nipype default value: NONE)
+		phase fieldmap image for structural images. first matching image
+		will be used.
+	pos_fieldmaps: (a list of items which are an existing file name)
+		a list of positive fieldmap niftis. Length must match number of bold
+		images.
+	sb_refs: (a list of items which are an existing file name)
+		a list of BOLD_SBRef niftis in chronological order. Length must
+		match number of bold images.
+	t1_sample_spacing: (a float or 'NONE', nipype default value: None)
+		DICOM field (0019,1018) * 10e-9 in s or 'NONE' if not used. (float)
+		seconds.
+	t1_structs: (a list of items which are an existing file name)
+		a list of t1 niftis in chronological order.
+	t2_sample_spacing: (a float or 'NONE', nipype default value: None)
+		DICOM field (0019,1018) * 10e-9 in s or 'NONE' if not used. (float)
+		seconds.
+	t2_structs: (a list of items which are an existing file name)
+		a list of t2 niftis in chronological order.
+
+HCPCommand
+==========
+Wraps command **None**
+
+Handles setting of _cmd to full path.
+
+Input spec must be a subclass of HCPCommandInputSpec.
+
+Inputs::
+
+	[Mandatory]
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+	[Optional]
+	args: (a string)
+		Additional parameters to the command
+	environ: (a dictionary with keys which are a value of type 'str' and
+		 with values which are a value of type 'str', nipype default value:
+		 {})
+		Environment variables
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+Outputs::
+
+	None
+
+PreFS
+=====
+Wraps command **PreFreeSurferPipeline.sh**
+
+
+Inputs::
+
+	[Mandatory]
+	fnirt_config: (an existing file name)
+		FNIRT 2mm T1w Config
+	subject: (a string)
+	t1_files: (a list of items which are an existing file name or an
+		 existing file name)
+		t1 files.
+	t1_template: (an existing file name)
+		MNI0.7mm template
+	t1_template_2mm: (an existing file name)
+		MNI2mm template
+	t1_template_brain: (an existing file name)
+		Brain extracted MNI0.7mm template
+	t2_files: (a list of items which are an existing file name or an
+		 existing file name)
+		t2 files.
+	t2_template: (an existing file name)
+		MNI0.7mm T2wTemplate
+	t2_template_2mm: (an existing file name)
+		MNI2mm T2wTemplate
+	t2_template_brain: (an existing file name)
+		Brain extracted MNI0.7mm T2wTemplate
+	template_2mm_mask: (an existing file name)
+		MNI2mm template
+	template_mask: (an existing file name)
+		Brain mask MNI0.7mm template
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+	[Optional]
+	args: (a string)
+		Additional parameters to the command
+	avg_rcd_method: ('FIELDMAP' or 'TOPUP' or 'NONE', nipype default
+		 value: FIELDMAP)
+		 Averaging and readout distortion correction methods: "NONE" =
+		average any
+		 repeats with no readout correction "FIELDMAP" = average any repeats
+		and use
+		 field map for readout correction "TOPUP" = average and distortion
+		correct at
+		 the same time with topup/applytopup only works for 2 images
+		currently
+	brain_size: (an integer, nipype default value: 150)
+		brain size in mm
+	environ: (a dictionary with keys which are a value of type 'str' and
+		 with values which are a value of type 'str', nipype default value:
+		 {})
+		Environment variables
+	fieldmap_magnitude: ('NONE' or a file name, nipype default value:
+		 NONE)
+		Expects 4D magitude volume with two 3D timepoints or 'NONE' if not
+		used
+		mutually_exclusive: se_fieldmap_neg, se_fieldmap_pos,
+		 se_echo_spacing, se_unwarp_dir
+	fieldmap_phase: ('NONE' or a file name, nipype default value: NONE)
+		Expects 3D phase difference volume or 'NONE' if not used
+		mutually_exclusive: se_fieldmap_neg, se_fieldmap_pos,
+		 se_echo_spacing, se_unwarp_dir
+	fieldmap_te: ('NONE' or a float, nipype default value: NONE)
+		delta TE in ms for magnitude field map or 'NONE' if not used.
+		mutually_exclusive: se_fieldmap_neg, se_fieldmap_pos,
+		 se_echo_spacing, se_unwarp_dir
+	fnirt_config: (an existing file name)
+		FNIRT 2mm T1w Config
+	full_command: (a string, nipype default value:
+		 PreFreeSurferPipeline.sh)
+		Full path to the relevant HCP script.
+	grad_distort_coeffs: ('NONE' or a file name, nipype default value:
+		 NONE)
+		Location of Coeffs file or 'NONE' to skip
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+	print_com: ('' or 'echo', nipype default value: )
+	se_echo_spacing: ('NONE' or a float, nipype default value: NONE)
+		Echo Spacing or Dwelltime of Spin Echo Field Map or 'NONE' if not
+		used
+		mutually_exclusive: fieldmap_magnitude, fieldmap_phase, fieldmap_te
+	se_fieldmap_neg: ('NONE' or a file name, nipype default value: NONE)
+		 For the spin echo field map volume with a negative phase encoding
+		 direction (LR in HCP data), set to NONE if using regular
+		 FIELDMAP
+		mutually_exclusive: fieldmap_magnitude, fieldmap_phase, fieldmap_te
+	se_fieldmap_pos: ('NONE' or a file name, nipype default value: NONE)
+		 For the spin echo field map volume with a positive phase encoding
+		 direction (RL in HCP data), set to NONE if using regular
+		 FIELDMAP
+		mutually_exclusive: fieldmap_magnitude, fieldmap_phase, fieldmap_te
+	se_unwarp_dir: ('NONE' or 'x' or 'y', nipype default value: NONE)
+		x or y (minus or not does not matter) 'NONE' if not used
+		mutually_exclusive: fieldmap_magnitude, fieldmap_phase, fieldmap_te
+	study_dir
+		Leave as None to have the interface make a new dir in its working
+		dir.
+	subject: (a string)
+	t1_files: (a list of items which are an existing file name or an
+		 existing file name)
+		t1 files.
+	t1_sample_spacing: ('NONE' or a float, nipype default value: NONE)
+		DICOM field (0019,1018) * 10e-9 in s or 'NONE' if not used.
+	t1_template: (an existing file name)
+		MNI0.7mm template
+	t1_template_2mm: (an existing file name)
+		MNI2mm template
+	t1_template_brain: (an existing file name)
+		Brain extracted MNI0.7mm template
+	t2_files: (a list of items which are an existing file name or an
+		 existing file name)
+		t2 files.
+	t2_sample_spacing: ('NONE' or a float, nipype default value: NONE)
+		DICOM field (0019,1018) * 10e-9 in s or 'NONE' if not used.
+	t2_template: (an existing file name)
+		MNI0.7mm T2wTemplate
+	t2_template_2mm: (an existing file name)
+		MNI2mm T2wTemplate
+	t2_template_brain: (an existing file name)
+		Brain extracted MNI0.7mm T2wTemplate
+	template_2mm_mask: (an existing file name)
+		MNI2mm template
+	template_mask: (an existing file name)
+		Brain mask MNI0.7mm template
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+	top_up_config: ('NONE' or a file name, nipype default value: NONE)
+		Config for topup or 'NONE' if not used
+	unwarp_dir: ('z' or 'z-' or 'x' or 'x-' or 'y' or 'y-' or 'NONE',
+		 nipype default value: z)
+		z appears to be best or 'NONE' if not used
+
+Outputs::
+
+	study_dir: (an existing directory name)
+		the study dir
+	subject: (a string)
+		subject id or number, as a string
+	subject_dir: (an existing directory name)
+		the subject dir
+	subject_t1_dir: (an existing directory name)
+		the subject dir
+	t1_acpc_dc_restore: (a file name)
+		The resulting T1w_acpc_dc_restore.nii.gz
+	t1_acpc_dc_restore_brain: (a file name)
+		The resulting T1w_acpc_dc_restore_brain.nii.gz
+	t2_acpc_dc_restore: (a file name)
+		The resulting T2w_acpc_dc_restore.nii.gz
+
+FS
+==
+Wraps command **FreeSurferPipeline.sh**
+
+
+Inputs::
+
+	[Mandatory]
+	full_command: (a string)
+		Full path to the relevant HCP script.
+	subject: (a string)
+	subject_t1_dir: (an existing directory name)
+		path to T1w dir created by the pre_freesurfer node.
+	t1_acpc_dc_restore: (an existing file name)
+	t1_acpc_dc_restore_brain: (an existing file name)
+	t2_acpc_dc_restore: (an existing file name)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+	[Optional]
+	args: (a string)
+		Additional parameters to the command
+	environ: (a dictionary with keys which are a value of type 'str' and
+		 with values which are a value of type 'str', nipype default value:
+		 {})
+		Environment variables
+	full_command: (a string)
+		Full path to the relevant HCP script.
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+	print_com: ('' or 'echo', nipype default value: )
+	subject: (a string)
+	subject_t1_dir: (an existing directory name)
+		path to T1w dir created by the pre_freesurfer node.
+	t1_acpc_dc_restore: (an existing file name)
+	t1_acpc_dc_restore_brain: (an existing file name)
+	t2_acpc_dc_restore: (an existing file name)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+Outputs::
+
+	subject: (a string)
+		subject id or number, as a string
+
+PostFS
+======
+Wraps command **PostFreeSurferPipeline.sh**
+
+
+Inputs::
+
+	[Mandatory]
+	freesurfer_labels: (an existing file name)
+	full_command: (a string)
+		Full path to the relevant HCP script.
+	grayordinates_dir: (an existing directory name)
+	ref_myelin_maps: (an existing file name)
+	study_dir: (an existing directory name)
+		The study dir. Should contain a subdir named after the subject.
+	subcort_gray_labels: (an existing file name)
+	subject: (a string)
+	surf_atlas_dir: (an existing directory name)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+	[Optional]
+	args: (a string)
+		Additional parameters to the command
+	environ: (a dictionary with keys which are a value of type 'str' and
+		 with values which are a value of type 'str', nipype default value:
+		 {})
+		Environment variables
+	freesurfer_labels: (an existing file name)
+	full_command: (a string)
+		Full path to the relevant HCP script.
+	grayordinates_dir: (an existing directory name)
+	grayordinates_res: (an integer, nipype default value: 2)
+		 Usually 2mm.
+	high_res_mesh: (an integer, nipype default value: 164)
+		Usually 164k vertices
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+	low_res_mesh: (an integer, nipype default value: 32)
+		Usually 32k vertices
+	print_com: ('' or 'echo', nipype default value: )
+	ref_myelin_maps: (an existing file name)
+	reg_name: ('FS' or 'MSMSulc', nipype default value: FS)
+		MSMSulc is recommended, if binary is not available use FS
+		(FreeSurfer)
+	study_dir: (an existing directory name)
+		The study dir. Should contain a subdir named after the subject.
+	subcort_gray_labels: (an existing file name)
+	subject: (a string)
+	surf_atlas_dir: (an existing directory name)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+Outputs::
+
+	grayordinates_res: (an integer)
+		Usually 2mm.
+	high_res_mesh: (an integer)
+		Usually 164k vertices
+	low_res_mesh: (an integer)
+		Usually 32k vertices
+	subject: (a string)
+		subject id or number, as a string
+
+VolumeProcessing
+================
+Wraps command **GenericfMRIVolumeProcessingPipeline.sh**
+
+
+Inputs::
+
+	[Mandatory]
+	bold_img: (an existing file name)
+		A 4D BOLD image.
+	bold_name: (a string)
+		For some reason, we need a unique name for each BOLD series.
+		Whatever. Provide.
+	bold_scout: ('NONE' or a file name)
+		 A single band reference image (SBRef) is recommended if using
+		 multiband, set to NONE if you want to use the first volume of the
+		 timeseries for motion correction
+	full_command: (a string)
+		Full path to the relevant HCP script.
+	study_dir: (an existing directory name)
+		The study dir. Should contain a subdir named after the subject.
+	subject: (a string)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+	[Optional]
+	args: (a string)
+		Additional parameters to the command
+	bold_img: (an existing file name)
+		A 4D BOLD image.
+	bold_name: (a string)
+		For some reason, we need a unique name for each BOLD series.
+		Whatever. Provide.
+	bold_scout: ('NONE' or a file name)
+		 A single band reference image (SBRef) is recommended if using
+		 multiband, set to NONE if you want to use the first volume of the
+		 timeseries for motion correction
+	distortion_correction_method: ('TOPUP' or 'FIELDMAP', nipype default
+		 value: TOPUP)
+		FIELDMAP or TOPUP, distortion correction is required for accurate
+		processing
+	environ: (a dictionary with keys which are a value of type 'str' and
+		 with values which are a value of type 'str', nipype default value:
+		 {})
+		Environment variables
+	fieldmap_delta_te: ('NONE' or a float, nipype default value: NONE)
+		(ms) 2.46ms for 3T, 1.02ms for 7T, set to NONE if using TOPUP
+		requires: fieldmap_mag, fieldmap_phase
+	fieldmap_echo_spacing: ('NONE' or a float, nipype default value:
+		 NONE)
+		(seconds) Spacing or Dwelltime of fMRI image.
+		requires: se_fieldmap_neg, se_fieldmap_pos
+	fieldmap_mag: ('NONE' or a file name, nipype default value: NONE)
+		requires: fieldmap_phase, fieldmap_delta_te
+	fieldmap_phase: ('NONE' or a file name, nipype default value: NONE)
+		requires: fieldmap_mag, fieldmap_delta_te
+	fmri_res: (an integer, nipype default value: 2)
+		Needs to match what is in PostFS. Target final resolution of fMRI
+		data. 2mm is recommended.
+	full_command: (a string)
+		Full path to the relevant HCP script.
+	grad_distort_coeffs: ('NONE' or a file name, nipype default value:
+		 NONE)
+		Gradient distortion correction coefficents, set to NONE to turn off.
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+	print_com: ('' or 'echo', nipype default value: )
+	se_fieldmap_neg: ('NONE' or a file name, nipype default value: NONE)
+		requires: se_fieldmap_pos, fieldmap_echo_spacing
+	se_fieldmap_pos: ('NONE' or a file name, nipype default value: NONE)
+		requires: se_fieldmap_neg, fieldmap_echo_spacing
+	study_dir: (an existing directory name)
+		The study dir. Should contain a subdir named after the subject.
+	subject: (a string)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+	top_up_config: ('NONE' or a file name, nipype default value: NONE)
+		Topup config if using TOPUP, set to NONE if using FIELDMAP as
+		distortion_correction_method.
+	unwarp_dir: ('x' or 'x-' or 'y' or 'y-' or 'z' or 'z-', nipype
+		 default value: x)
+
+Outputs::
+
+	bold_name: (a string)
+		A unique name for the BOLD series. We only handle one at a time, so
+		use a mapnode if you have more.
+	subject: (a string)
+		subject id or number, as a string
+
+SurfaceProcessing
+=================
+Wraps command **GenericfMRISurfaceProcessingPipeline.sh**
+
+
+Inputs::
+
+	[Mandatory]
+	bold_name: (a string)
+		For some reason, we need a unique name for each BOLD series.
+		Whatever. Provide.
+	full_command: (a string)
+		Full path to the relevant HCP script.
+	study_dir: (an existing directory name)
+		The study dir. Should contain a subdir named after the subject.
+	subject: (a string)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+	[Optional]
+	args: (a string)
+		Additional parameters to the command
+	bold_name: (a string)
+		For some reason, we need a unique name for each BOLD series.
+		Whatever. Provide.
+	environ: (a dictionary with keys which are a value of type 'str' and
+		 with values which are a value of type 'str', nipype default value:
+		 {})
+		Environment variables
+	fmri_res: (an integer, nipype default value: 2)
+		Needs to match what is in PostFS. Target final resolution of fMRI
+		data. 2mm is recommended.
+	full_command: (a string)
+		Full path to the relevant HCP script.
+	grayordinates_res: (an integer, nipype default value: 2)
+		 Needs to match what is in PostFS. Usually 2mm. Could be the same
+		 as FinalfRMIResolution or something different, which will call a
+		 different module for subcortical processing.
+	ignore_exception: (a boolean, nipype default value: False)
+		Print an error message instead of throwing an exception in case the
+		interface fails to run
+	low_res_mesh: (an integer, nipype default value: 32)
+		Needs to match what is in PostFS. Usually 32k vertices.
+	smoothing_fwhm: (an integer, nipype default value: 2)
+		Recommended to be roughly the voxel size.
+	study_dir: (an existing directory name)
+		The study dir. Should contain a subdir named after the subject.
+	subject: (a string)
+	terminal_output: ('stream' or 'allatonce' or 'file' or 'none')
+		Control terminal output: `stream` - displays to terminal
+		immediately, `allatonce` - waits till command is finished to display
+		output, `file` - writes output to file, `none` - output is ignored
+
+Outputs::
+
+	subject: (a string)
+		subject id or number, as a string
+

@@ -1,0 +1,21 @@
+# History files
+.Rhistory
+*-Ex.R
+Rprof*
+
+# This crap that os x puts everywhere
+.DS_Store
+*.m~
+
+# Ignore pyc
+*.pyc
+
+# Other
+ben_acland/notebooks/eyetracking/*/
+ben_acland/notebooks/eyetracking/*.pkl
+ben_acland/notebooks/eyetracking/*.png
+!ben_acland/notebooks/eyetracking/archive/
+
+/ben_acland/notebooks/pup_bucket/*/
+
+*.fidl
