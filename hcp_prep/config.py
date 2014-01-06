@@ -46,8 +46,8 @@ CONF_FILE_DEFAULTS = [
 
 POS_FIELDMAPS = ["fieldmap_rl", "fieldmap_ap"]
 NEG_FIELDMAPS = ["fieldmap_lr", "fieldmap_pa"]
-YES_WORDS = [1,"1","y","Y","yes","Yes","YES", "False", "false"]
-NO_WORDS = [0,"0","n","N","no","No","NO", "True", "true"]
+YES_WORDS = [1,"1","y","Y","yes","Yes","YES", "True", "true"]
+NO_WORDS = [0,"0","n","N","no","No","NO", "False", "false"]
 
 def setup_conf():
     import ConfigParser
