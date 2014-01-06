@@ -45,6 +45,8 @@ Commands
 
 Parameters
 ----------
+-c, --config (path)
+    The config file to use.
 -s (comma separated subject numbers)
     The list of subjects who you'd like to put through the workflow. Overrides
     setting in the config file.
@@ -355,7 +357,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "vrhiugs:n:o:", ["run", "help", "init", "update", "graph"])
+            opts, args = getopt.getopt(argv[1:], "vrhiugs:n:o:c:", ["run", "help", "init", "update", "graph", "config"])
         except getopt.error, msg:
             raise Usage(msg="\n"+str(msg))
         # option processing
@@ -365,6 +367,7 @@ def main(argv=None):
         N_PROCS = None
         run = False
         verbose = False
+        c_file = None
         out_dir = os.getcwd()
         for option, value in opts:
             if option in ("-h", "--help"):
@@ -378,6 +381,8 @@ def main(argv=None):
                 graph = True
             if option in ("-r", "--run"):
                 run = True
+            if option in ("-c", "--config"):
+                c_file = value
             if option in ("-s"):
                 subs = [sub.strip() for sub in value.split(",")]
             if option in ("-v"):
@@ -387,7 +392,8 @@ def main(argv=None):
             if option in ('-o'):
                 out_dir = value
         # select config file
-        c_file = select_conf()
+        if not c_file:
+            c_file = select_conf()
         # update if necessary
         if update:
             update_conf(c_file)
