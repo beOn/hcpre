@@ -46,8 +46,8 @@ CONF_FILE_DEFAULTS = [
 
 POS_FIELDMAPS = ["fieldmap_rl", "fieldmap_ap"]
 NEG_FIELDMAPS = ["fieldmap_lr", "fieldmap_pa"]
-YES_WORDS = [1,"1","y","Y","yes","Yes","YES"]
-NO_WORDS = [0,"0","n","N","no","No","NO"]
+YES_WORDS = [1,"1","y","Y","yes","Yes","YES", "False", "false"]
+NO_WORDS = [0,"0","n","N","no","No","NO", "True", "true"]
 
 def setup_conf():
     import ConfigParser
@@ -284,7 +284,7 @@ def get_config_dict(conf_path):
         confd["series"] = ss
     # this needs to be a bool (we need to switch to json...)
     if "nifti_wrangler" in confd and "block_struct_averaging" in confd["nifti_wrangler"]:
-        confd["nifti_wrangler"]["block_struct_averaging"] = confd["nifti_wrangler"]["block_struct_averaging"] in ["True", "true"]
+        confd["nifti_wrangler"]["block_struct_averaging"] = confd["nifti_wrangler"]["block_struct_averaging"] in YES_WORDS
     return confd
 
 def get_hcp_env_for_config(conf_dict):
