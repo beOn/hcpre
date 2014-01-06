@@ -282,6 +282,9 @@ def get_config_dict(conf_path):
         for k, v in ss.iteritems():
             ss[k] = [a.strip() for a in v.split(",")] if v and isinstance(v,str) else []
         confd["series"] = ss
+    # this needs to be a bool (we need to switch to json...)
+    if "nifti_wrangler" in confd and "block_struct_averaging" in confd["nifti_wrangler"]:
+        confd["nifti_wrangler"]["block_struct_averaging"] = confd["nifti_wrangler"]["block_struct_averaging"] in ["True", "true"]
     return confd
 
 def get_hcp_env_for_config(conf_dict):
