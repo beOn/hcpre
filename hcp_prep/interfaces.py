@@ -238,6 +238,11 @@ class NiiWranglerInputSpec(BaseInterfaceInputSpec):
             Setting this value will prevent any attempt to derive it.""")
     ep_unwarp_dir = traits.Enum("x", "x-" ,"y", "y-", "z", "z-",
             desc="Setting this value will prevent any attempt to derive it.")
+    block_struct_averaging = traits.Bool(False,
+            mandatory=False, usedefault=True,
+            desc="""
+            Causes us to only use the first t1 and t2 images. A kludge for
+            some data that fails during structural averaging.""")
 
 class NiiWranglerOutputSpec(TraitedSpec):
     t1_structs = OutputMultiPath(
@@ -322,6 +327,7 @@ class NiiWrangler(BaseInterface):
         nii_files = self.inputs.nii_files
         smap = self.inputs.series_map
         dinfo = self.inputs.dicom_info
+        block_averaging = self.inputs.block_struct_averaging
         s_num_reg = re.compile(".*s(\d+)a(?!.*/)") # sux to use filename. make more robust if needed.
         nii_by_series = {}
         fails = []
@@ -357,6 +363,9 @@ class NiiWrangler(BaseInterface):
         it = "image_type"
         t1fs = [d for d in filter(lambda x: sd in x and x[sd] in smap.get("t1",[]), dinfo) if nf in d]
         t2fs = [d for d in filter(lambda x: sd in x and x[sd] in smap.get("t2",[]), dinfo) if nf in d]
+        if block_averaging:
+            t1fs = [t1fs[0]]
+            t2fs = [t2fs[0]]
         self.t1_files = [d[nf] for d in t1fs]
         self.t2_files = [d[nf] for d in t2fs]
         bs = [d for d in filter(lambda x: sd in x and x[sd] in smap.get("bold",[]), dinfo) if nf in d]
