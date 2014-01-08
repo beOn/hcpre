@@ -170,6 +170,10 @@ class DicomInfo(BaseInterface):
                     # n will be in 0/1 (other index will == 0), m will be in 2/3
                     by_series[s_num]["acq_matrix_n"] = acq_mat[0] or acq_mat[1]
                     by_series[s_num]["acq_matrix_m"] = acq_mat[2] or acq_mat[3]
+                # try to get orientation from header
+                orient = orientation_from_dcm_header(d)
+                if orient:
+                    by_series[s_num]["orientation"] = orient
                 # try to get siemens shadow header
                 try:
                     ss = read_siemens_shadow(f)[0]
