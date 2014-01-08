@@ -430,6 +430,7 @@ def main(argv=None):
         if not run:
             return
         if use_pbs:
+            print "running using PBS"
             wk.run(plugin="PBS",
                    plugin_args={"qsub_args":"-l nodes=2:ppn=8,walltime=24:00:00"})
         elif N_PROCS > 0:
