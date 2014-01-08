@@ -54,7 +54,11 @@ Parameters
     a point, but depending on how large your data is (chances are, it is quite
     large), you may well want to limit yourself to something below 8 for
     starters if you're working on a large server. I haven't added command line
-    support for clusters yet, but it'll come soon. Default is 1.
+    support for clusters yet, but it'll come soon. Default is 1. Ignored if
+    you use -p.
+-p, --pbs
+    Causes nipype to try to use the PBS plugin. For use on the cluster only.
+    Experimental.
 -o (path)
     The directory to put preprocessed data in. Default is current directory.
 -v 
@@ -356,7 +360,7 @@ def main(argv=None):
         argv = sys.argv
     try:
         try:
-            opts, args = getopt.getopt(argv[1:], "vrhiugs:n:o:c:", ["run", "help", "init", "update", "graph", "config"])
+            opts, args = getopt.getopt(argv[1:], "pvrhiugs:n:o:c:", ["run", "help", "init", "update", "graph", "config", "pbs"])
         except getopt.error, msg:
             raise Usage(msg="\n"+str(msg))
         # option processing
@@ -367,6 +371,7 @@ def main(argv=None):
         run = False
         verbose = False
         c_file = None
+        use_pbs = False
         out_dir = os.getcwd()
         for option, value in opts:
             if option in ("-h", "--help"):
@@ -382,6 +387,8 @@ def main(argv=None):
                 run = True
             if option in ("-c", "--config"):
                 c_file = value
+            if option in ("-p", "--pbs"):
+                use_pbs = True
             if option in ("-s"):
                 subs = [sub.strip() for sub in value.split(",")]
             if option in ("-v"):
@@ -422,7 +429,10 @@ def main(argv=None):
             return
         if not run:
             return
-        if N_PROCS > 0:
+        if use_pbs:
+            wk.run(plugin="PBS",
+                   plugin_args={qsub_args:"-l nodes=2:ppn=8,walltime=8:00:00"})
+        elif N_PROCS > 0:
             print "running with %d processes" % N_PROCS
             wk.run(plugin="MultiProc", plugin_args={"n_procs" : N_PROCS, "non_daemon" : True})
         else:
