@@ -44,8 +44,8 @@ CONF_FILE_DEFAULTS = [
     "%(hcp_dir)s/global/config/FreeSurferAllLut.txt",
     "%(hcp_dir)s/global/config/b02b0.cnf",]
 
-POS_FIELDMAPS = ["fieldmap_rl", "fieldmap_ap"]
-NEG_FIELDMAPS = ["fieldmap_lr", "fieldmap_pa"]
+POS_FIELDMAPS = ["fieldmap_rl", "fieldmap_pa"]
+NEG_FIELDMAPS = ["fieldmap_lr", "fieldmap_ap"]
 YES_WORDS = [1,"1","y","Y","yes","Yes","YES", "True", "true"]
 NO_WORDS = [0,"0","n","N","no","No","NO", "False", "false"]
 
