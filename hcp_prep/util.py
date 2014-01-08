@@ -4,6 +4,7 @@ def orientation_from_dcm_header(header):
     if not header:
         raise ValueError("didn't get a header")
     o = getattr(header, "ImageOrientationPatient", None)
+    o = [float(a) for a in o]
     if not o:
         raise ValueError("couldn't find ImageOrientationPatient in header")
     if len(o) != 6:
