@@ -8,6 +8,7 @@ from nipype.interfaces.base import BaseInterface, InputMultiPath,\
     CommandLineInputSpec, CommandLine, Directory
 from traits.trait_errors import TraitError
 import nipype.interfaces.dcm2nii as d2n
+from duke_siemens.util_dicom_siemens import read as read_siemens_shadow
 
 from util import *
 from config import *

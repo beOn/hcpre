@@ -18,7 +18,6 @@ import nipype.interfaces.io as nio           # Data i/o
 import nipype.interfaces.utility as util     # utility
 import nipype.pipeline.engine as pe          # pypeline engine
 
-from duke_siemens.util_dicom_siemens import read as read_siemens_shadow
 from config import *
 from interfaces import *
 from util import *
