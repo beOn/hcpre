@@ -18,9 +18,9 @@ import nipype.interfaces.io as nio           # Data i/o
 import nipype.interfaces.utility as util     # utility
 import nipype.pipeline.engine as pe          # pypeline engine
 
-from config import *
-from interfaces import *
-from util import *
+from hcp_prep.config import *
+from hcp_prep.interfaces import *
+from hcp_prep.util import *
 
 help_message = """
 Implements the HCPrepWorkflow, provides command line tools to build and work

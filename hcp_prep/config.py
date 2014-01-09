@@ -1,6 +1,6 @@
 import os
 import sys
-from util import *
+from hcp_prep.util import *
 from multiprocessing import Pool, cpu_count
 
 SCAN_TYPES = [
