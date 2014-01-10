@@ -432,7 +432,7 @@ def main(argv=None):
         if use_pbs:
             print "running using PBS"
             wk.run(plugin="PBS",
-                   plugin_args={"qsub_args":"-l nodes=2:ppn=8,walltime=24:00:00"})
+                   plugin_args={"qsub_args":"-l nodes=1:ppn=6,walltime=12:00:00"})
         elif N_PROCS > 0:
             print "running with %d processes" % N_PROCS
             wk.run(plugin="MultiProc", plugin_args={"n_procs" : N_PROCS, "non_daemon" : True})
