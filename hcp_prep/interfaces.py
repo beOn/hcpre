@@ -835,7 +835,7 @@ class VolumeProcessingInputSpec(HCPCommandInputSpec):
             # xor=["se_fieldmap_neg", "se_fieldmap_pos", "fieldmap_echo_spacing"],
             requires=["fieldmap_mag", "fieldmap_phase"],
             desc="(ms) 2.46ms for 3T, 1.02ms for 7T, set to NONE if using TOPUP")
-    unwarp_dir = traits.Enum("x", "x-" ,"y", "y-", "z", "z-",
+    unwarp_dir = traits.Enum("x", "x-", "-x", "y", "y-", "-y", "z", "z-", "-z",
             mandatory=False, usedefault=True, position=11, argstr='--unwarpdir="%s"',
             desc="")
     fmri_res = traits.Int(2,
