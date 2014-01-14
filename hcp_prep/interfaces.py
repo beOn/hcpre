@@ -421,6 +421,13 @@ class NiiWrangler(BaseInterface):
         # we'll derive the ep unwarp dir in the future... for now, just set it in config
         if isdefined(self.inputs.ep_unwarp_dir):
             self.ep_unwarp_dirs = [self.inputs.ep_unwarp_dir for n in self.bolds]
+            # if you have any polarity swapped series, apply that now
+            pswaps = smap.get("polarity_swapped", [])
+            if pswaps:
+                for b_idx, uw_dir in enumerate(self.ep_unwarp_dirs):
+                    if bs[b_idx].get("series_desc",None) in pswaps:
+                        raw_dir = uw_dir.replace("-","")
+                        self.ep_unwarp_dirs[b_idx] = "-"+raw_dir if not "-" in uw_dir else raw_dir
         else:
             # fail. we can do better!
             raise ValueError("We can't derive ep_unwarp_dir yet. Please set it in the nii wrangler config section.")
