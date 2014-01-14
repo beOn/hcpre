@@ -84,7 +84,7 @@ def setup_conf():
     config = ConfigObj(name)
     # get the basics
     config["general"] = {}
-    config["general"]["subjects"] = subs
+    config["general"]["subjects"] = [s.strip() for s in subs.split(",")]
     config["general"]["subject_dir"] = subs_dir
     config["general"]["dicom_template"] = dcm_temp
     # write the config file
