@@ -282,7 +282,7 @@ def get_config_dict(conf_path):
 def get_hcp_env_for_config(conf_dict):
     # exceptions will be raised if config isn't good.
     # hint: we call this from the validation method!
-    d = conf_dict["default"]
+    d = conf_dict["DEFAULT"]
     dp = lambda x: os.path.join(d["hcp_dir"], x)
     return {
         "FSLDIR":d["fsl_dir"],
@@ -308,7 +308,7 @@ def get_hcp_env_for_config(conf_dict):
 def get_hcp_commands_for_config(conf_dict):
     # exceptions will be raised if config isn't good.
     # hint: we call this from the validation method!
-    dp = lambda x: os.path.join(conf_dict["default"]["hcp_dir"], x)
+    dp = lambda x: os.path.join(conf_dict["DEFAULT"]["hcp_dir"], x)
     return [
         dp("PreFreeSurfer/PreFreeSurferPipeline.sh"),
         dp("FreeSurfer/FreeSurferPipeline.sh"),
