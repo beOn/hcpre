@@ -241,7 +241,7 @@ class NiiWranglerInputSpec(BaseInterfaceInputSpec):
             match the 'Echo Spacing' that Siemen's reports in the console.
 
             Setting this value will prevent any attempt to derive it.""")
-    ep_unwarp_dir = traits.Enum("x", "x-" ,"y", "y-", "z", "z-",
+    ep_unwarp_dir = traits.Enum("x", "x-", "-x", "y", "y-", "-y", "z", "z-", "-z",
             desc="Setting this value will prevent any attempt to derive it.")
     block_struct_averaging = traits.Bool(False,
             mandatory=False, usedefault=True,
@@ -305,7 +305,7 @@ class NiiWranglerOutputSpec(TraitedSpec):
             pipeline to ensure that it's sane.
 
             Length must match number of bold images.""")
-    ep_unwarp_dirs = traits.List(traits.Enum("x", "x-" ,"y", "y-", "z", "z-",),
+    ep_unwarp_dirs = traits.List(traits.Enum("x", "x-", "-x", "y", "y-", "-y", "z", "z-", "-z",),
             mandatory=True,
             desc="Length must match number of bold images.")
 
@@ -596,7 +596,7 @@ class PreFSInputSpec(HCPCommandInputSpec):
     t2_sample_spacing = traits.Either(traits.Enum("NONE"), traits.Float(),
             default="NONE", mandatory=False, usedefault=True, position=22, argstr='--t2samplespacing="%s"',
             desc="DICOM field (0019,1018) * 10e-9 in s or 'NONE' if not used.")
-    unwarp_dir = traits.Enum("z", "z-", "x", "x-" ,"y", "y-", "NONE",
+    unwarp_dir = traits.Enum("z", "z-", "-z", "x", "x-", "-x", "y", "y-", "-y", "NONE",
             mandatory=False, usedefault=True, position=23, argstr='--unwarpdir="%s"',
             desc="z appears to be best or 'NONE' if not used")
     grad_distort_coeffs = traits.Either(traits.Enum("NONE"), traits.File(exists=True),
