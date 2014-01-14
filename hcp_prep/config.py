@@ -2,6 +2,7 @@ import os
 import sys
 from hcp_prep.util import *
 from multiprocessing import Pool, cpu_count
+from configobj import ConfigObj
 
 SCAN_TYPES = [
     'bold',
@@ -50,7 +51,6 @@ YES_WORDS = [1,"1","y","Y","yes","Yes","YES", "True", "true"]
 NO_WORDS = [0,"0","n","N","no","No","NO", "False", "false"]
 
 def setup_conf():
-    import ConfigParser
     import os
     # get name for conf file
     name = raw_input("New config file name [hcp.conf]: ")
@@ -80,16 +80,14 @@ def setup_conf():
     subs = raw_input("Subject list ['']: ")
     subs = subs.strip()
     # set up config obj
-    config = ConfigParser.ConfigParser()
+    config = ConfigObj(name)
     # get the basics
-    config.remove_section("general")
-    config.add_section("general")
-    config.set("general", "subjects", subs)
-    config.set("general", "subject_dir", subs_dir)
-    config.set("general", "dicom_template", dcm_temp)
+    config["general"] = {}
+    config["general"]["subjects"] = subs
+    config["general"]["subject_dir"] = subs_dir
+    config["general"]["dicom_template"] = dcm_temp
     # write the config file
-    with open(name, "wb") as f:
-        config.write(f)
+    config.write()
     update_conf(name)
 
 def get_series_desc(dicom_path):
@@ -106,42 +104,40 @@ def templ_defaults_for_rez(rez):
     else:
         return None
     return [
-        "%%(hcp_dir)s/global/templates",
+        "%(hcp_dir)s/global/templates",
         "%%(templates_dir)s/MNI152_T1_%smm.nii.gz" % rez,
         "%%(templates_dir)s/MNI152_T1_%smm_brain.nii.gz" % rez,
-        "%%(templates_dir)s/MNI152_T1_2mm.nii.gz",
+        "%(templates_dir)s/MNI152_T1_2mm.nii.gz",
         "%%(templates_dir)s/MNI152_T2_%smm.nii.gz" % rez,
         "%%(templates_dir)s/MNI152_T2_%smm_brain.nii.gz" % rez,
-        "%%(templates_dir)s/MNI152_T2_2mm.nii.gz",
+        "%(templates_dir)s/MNI152_T2_2mm.nii.gz",
         "%%(templates_dir)s/MNI152_T1_%smm_brain_mask.nii.gz" % rez,
-        "%%(templates_dir)s/MNI152_T1_2mm_brain_mask_dil.nii.gz",
-        "%%(templates_dir)s/standard_mesh_atlases",
-        "%%(templates_dir)s/91282_Greyordinates",
-        "%%(templates_dir)s/standard_mesh_atlases/Conte69.MyelinMap_BC.164k_fs_LR.dscalar.nii"]
+        "%(templates_dir)s/MNI152_T1_2mm_brain_mask_dil.nii.gz",
+        "%(templates_dir)s/standard_mesh_atlases",
+        "%(templates_dir)s/91282_Greyordinates",
+        "%(templates_dir)s/standard_mesh_atlases/Conte69.MyelinMap_BC.164k_fs_LR.dscalar.nii"]
 
 def update_conf(conf_path):
     import os
     import sys
     from glob import glob
-    import ConfigParser
     import dicom
     from time import sleep
     from numpy import unique
     # TODO: make sure conf is there
-    config = ConfigParser.ConfigParser()
-    config.read(conf_path)
+    config = ConfigObj(conf_path)
     # update the series map if needed or desired
-    needs_smap = not config.has_section("series")
+    needs_smap = "series" not in config
     if not needs_smap:
         needs_smap = raw_input("Do you want to re-map the series descriptions y/[n]? ").strip() in YES_WORDS
     if needs_smap:
         # get list of all sequence descriptions
-        s = config.get("general","subject_dir")
-        t = config.get("general","dicom_template") % "*"
+        s = config["general"]["subject_dir"]
+        t = config["general"]["dicom_template"] % "*"
         dicoms = glob(os.path.join(s,t))
         message = "\rChecking series names (this may take some time) %s"
         dcm_count = len(dicoms)
-        pool = Pool(processes=min(15, cpu_count()/2))
+        pool = Pool(processes=min(15, int(round(cpu_count() * .75))))
         result = pool.map_async(get_series_desc, dicoms)
         while not result.ready():
             sleep(.5)
@@ -182,59 +178,56 @@ def update_conf(conf_path):
             i += 1
             for n in m:
                 type_matches[ft].append(series[n])
-        config.remove_section("series")
-        config.add_section("series")
+        config["series"] = {}
         for key in sorted(type_matches.keys()):
-            config.set("series", key, ", ".join(type_matches[key]))
+            config["series"][key] = type_matches[key]
+    config["DEFAULT"] = {}
     # freesurfer home (defaults)
     d_val = os.environ.get("FREESURFER_HOME", "")
-    fsh = raw_input("Path for FREESURFER_HOME [%s]: " % d_val).strip()
+    fsh = raw_input("\nPath for FREESURFER_HOME [%s]: " % d_val).strip()
     fsh = fsh if fsh else d_val
-    config.set("DEFAULT", "freesurfer_home", fsh)
+    config["DEFAULT"]["freesurfer_home"] = fsh
     # fsl dir (defaults)
     d_val = os.environ.get("FSLDIR", "")
-    fslh = raw_input("Path for FSLDIR [%s]: " % d_val).strip()
+    fslh = raw_input("\nPath for FSLDIR [%s]: " % d_val).strip()
     fslh = fslh if fslh else d_val
-    config.set("DEFAULT", "fsl_dir", fslh)
+    config["DEFAULT"]["fsl_dir"] = fslh
     # hcp dir (defaults)
-    hcph = raw_input("Path to HCP Pipelines dir [ ]: ").strip()
-    config.set("DEFAULT", "hcp_dir", hcph)
+    hcph = raw_input("\nPath to HCP Pipelines dir [ ]: ").strip()
+    config["DEFAULT"]["hcp_dir"] = hcph
     # template file locations (templates)
-    rez = raw_input("What is your structural image resolution (mm)?\n[Skip] or one of (.7, .8, 1): ").strip()
+    rez = raw_input("\nWhat is your structural image resolution (mm)?\n[Skip] or one of (.7, .8, 1): ").strip()
     rez = float_or_none(rez)
     rez_temps = None
     def_t = False
     if rez:
         rez_temps = templ_defaults_for_rez(rez)
     if rez_temps:
-        def_t = raw_input("Use default template files for resolution %0.1f [y]/n? " % rez).strip() not in NO_WORDS
+        def_t = raw_input("\nUse default template files for resolution %0.1f [y]/n? " % rez).strip() not in NO_WORDS
         if def_t:
             t_vals = rez_temps
     if not t_vals:
         t_vals = ['' for k in TEMPL_KEYS]
-    config.remove_section("templates")
-    config.add_section("templates")
+    config["templates"] = {}
     for i, key in enumerate(TEMPL_KEYS):
-        config.set("templates", key, t_vals[i])
+        config["templates"][key] = t_vals[i]
     if not def_t:
         print "\nWhen finished, please open your config file to set the tamplate locations manually.\n"
     # config file locations (config_files)
-    def_c = raw_input("Use default config files [y]/n?").strip() not in NO_WORDS
+    def_c = raw_input("\nUse default config files [y]/n?").strip() not in NO_WORDS
     c_vals = CONF_FILE_DEFAULTS if def_c else ['' for k in CONF_FILE_KEYS]
-    config.remove_section("config_files")
-    config.add_section("config_files")
+    config["config_files"] = {}
     for i, key in enumerate(CONF_FILE_KEYS):
-        config.set("config_files", key, c_vals[i])
+        config["config_files"][key] = c_vals[i]
     if not def_c:
         print "\nWhen finished, please open your config file to set the other config file locations manually.\n"
     # add a section for the damned unwarpdir variable... sigh
-    if not config.has_section("nifti_wrangler"):
-        config.add_section("nifti_wrangler")
-        config.set("nifti_wrangler", "ep_unwarp_dir", "x")
+    if not "nifti_wrangler" in config:
+        config["nifti_wrangler"] = {}
+        config["nifti_wrangler"]["ep_unwarp_dir"] = "x"
         print "\nWhen finished, please open your config file check the value for ep_unwarp_dir.\n"
     # write the file!
-    with open(conf_path, "wb") as f:
-        config.write(f)
+    config.write()
 
 def select_conf():
     # if there"s only one conf around, select it. otherwise, offer a choice.
@@ -264,28 +257,26 @@ def numbered_choice(choices, allow_none=False, skip_list=False):
     return choices[0]
 
 def get_config_dict(conf_path):
-    import ConfigParser
-    config = ConfigParser.ConfigParser()
-    config.read(conf_path)
-    # default section isn't in .sections(), so we'll grab it here
-    confd = {'default':dict(config.defaults())}
-    dks = confd['default'].keys()
-    for sect in config.sections():
-        confd[sect] = dict([t for t in config.items(sect) if not t[0] in dks])
-    # turn subjects into a proper list
-    ds = confd["general"].get("subjects", None)
-    if ds:
-        confd["general"]["subjects"] = [a.strip() for a in ds.split(",")]
-    # turn series description mappings into lists
-    ss = confd.get("series", None)
-    if ss:
-        for k, v in ss.iteritems():
-            ss[k] = [a.strip() for a in v.split(",")] if v and isinstance(v,str) else []
-        confd["series"] = ss
-    # this needs to be a bool (we need to switch to json...)
-    if "nifti_wrangler" in confd and "block_struct_averaging" in confd["nifti_wrangler"]:
-        confd["nifti_wrangler"]["block_struct_averaging"] = confd["nifti_wrangler"]["block_struct_averaging"] in YES_WORDS
-    return confd
+    config = ConfigObj(conf_path)
+    # # default section isn't in .sections(), so we'll grab it here
+    # confd = {'default':dict(config.defaults())}
+    # dks = confd['default'].keys()
+    # for sect in config.sections():
+    #     confd[sect] = dict([t for t in config.items(sect) if not t[0] in dks])
+    # # turn subjects into a proper list
+    # ds = confd["general"].get("subjects", None)
+    # if ds:
+    #     confd["general"]["subjects"] = [a.strip() for a in ds.split(",")]
+    # # turn series description mappings into lists
+    # ss = confd.get("series", None)
+    # if ss:
+    #     for k, v in ss.iteritems():
+    #         ss[k] = [a.strip() for a in v.split(",")] if v and isinstance(v,str) else []
+    #     confd["series"] = ss
+    # # this needs to be a bool (we need to switch to json...)
+    # if "nifti_wrangler" in confd and "block_struct_averaging" in confd["nifti_wrangler"]:
+    #     confd["nifti_wrangler"]["block_struct_averaging"] = confd["nifti_wrangler"]["block_struct_averaging"] in YES_WORDS
+    return config
 
 def get_hcp_env_for_config(conf_dict):
     # exceptions will be raised if config isn't good.
@@ -332,3 +323,5 @@ def apply_dict_to_obj(the_d, obj, skip_names=[]):
         if name in skip_names or "traits" not in dir(obj) or name not in obj.traits().keys():
             continue
         setattr(obj, name, val)
+
+

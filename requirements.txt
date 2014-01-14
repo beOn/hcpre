@@ -1,2 +1,3 @@
 nipype
 pydicom
+configobj
