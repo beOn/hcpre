@@ -436,10 +436,12 @@ def main(argv=None):
             ques = [
                 [[wk.dicom_convert, wk.dicom_info, wk.nii_wrangler],
                     {"qsub_args":"-l nodes=1:ppn=1,mem=1gb,walltime=1:00:00"}],
+                [[wk.hc_pre_fs],
+                    {"qsub_args":"-l nodes=1:ppn=1,mem=10gb,walltime=6:00:00"}],
                 [[wk.hc_fs],
-                    {"qsub_args":"-l nodes=1:ppn=2,mem=40gb,walltime=24:00:00"}],
-                [[wk.hc_pre_fs, wk.hc_post_fs],
-                    {"qsub_args":"-l nodes=1:ppn=2,mem=20gb,walltime=12:00:00"}],
+                    {"qsub_args":"-l nodes=1:ppn=2,mem=5gb,walltime=24:00:00"}],
+                [[wk.hc_post_fs],
+                    {"qsub_args":"-l nodes=1:ppn=4,mem=10gb,walltime=4:00:00"}],
                 [[wk.hc_volume, wk.hc_surface],
                     {"qsub_args":"-l nodes=1:ppn=4,mem=10gb,walltime=12:00:00"}],
                 ]
