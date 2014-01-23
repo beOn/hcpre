@@ -437,7 +437,7 @@ def main(argv=None):
                 [[wk.dicom_convert, wk.dicom_info, wk.nii_wrangler],
                     {"qsub_args":"-l nodes=1:ppn=1,mem=1gb,walltime=1:00:00"}],
                 [[wk.hc_pre_fs],
-                    {"qsub_args":"-l nodes=1:ppn=1,mem=10gb,walltime=6:00:00"}],
+                    {"qsub_args":"-l nodes=1:ppn=2,mem=10gb,vmem=5gb,walltime=6:00:00"}],
                 [[wk.hc_fs],
                     {"qsub_args":"-l nodes=1:ppn=2,mem=5gb,walltime=24:00:00"}],
                 [[wk.hc_post_fs],
