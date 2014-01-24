@@ -81,7 +81,7 @@ def setup_conf():
     subs = raw_input("Subject list ['']: ")
     subs = subs.strip()
     # set up config obj
-    config = ConfigObj(name)
+    config = ConfigObj(name, unrepr=True)
     # get the basics
     config["general"] = {}
     config["general"]["subjects"] = [s.strip() for s in subs.split(",")]
@@ -126,7 +126,7 @@ def update_conf(conf_path):
     from time import sleep
     from numpy import unique
     # TODO: make sure conf is there
-    config = ConfigObj(conf_path)
+    config = ConfigObj(conf_path, unrepr=True)
     # update the series map if needed or desired
     needs_smap = "series" not in config
     if not needs_smap:
@@ -258,7 +258,7 @@ def numbered_choice(choices, allow_none=False, skip_list=False):
     return choices[0]
 
 def get_config_dict(conf_path):
-    config = ConfigObj(conf_path)
+    config = ConfigObj(conf_path, unrepr=True)
     # # default section isn't in .sections(), so we'll grab it here
     # confd = {'default':dict(config.defaults())}
     # dks = confd['default'].keys()
