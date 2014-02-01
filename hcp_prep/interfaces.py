@@ -319,8 +319,6 @@ class NiiWranglerOutputSpec(TraitedSpec):
             mandatory=True,
             desc="Length must match number of bold images.")
 
-
-
 class NiiWrangler(BaseInterface):
     input_spec = NiiWranglerInputSpec
     output_spec = NiiWranglerOutputSpec

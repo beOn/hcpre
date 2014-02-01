@@ -344,7 +344,12 @@ class HCPrepWorkflow(pe.Workflow):
     @property
     def data_sink(self):
         if not getattr(self,'_data_sink',None):
-            self._data_sink = pe.Node(name="data_sink", interface=nio.DataSink())
+            self._data_sink = pe.JoinNode(
+                    name="data_sink",
+                    interface=nio.DataSink(),
+                    joinsource="volume",
+                    joinfield=["preprocessed"],
+                    unique=True)
         return self._data_sink
     @data_sink.setter
     def data_sink(self, val):
