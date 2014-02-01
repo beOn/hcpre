@@ -50,6 +50,7 @@ POS_FIELDMAPS = ["fieldmap_rl", "fieldmap_pa"]
 NEG_FIELDMAPS = ["fieldmap_lr", "fieldmap_ap"]
 YES_WORDS = [1,"1","y","Y","yes","Yes","YES", "True", "true"]
 NO_WORDS = [0,"0","n","N","no","No","NO", "False", "false"]
+EPFM_SELECTION_OPTS = ["first","most_recent"]
 
 def setup_conf():
     import os
@@ -222,11 +223,25 @@ def update_conf(conf_path):
         config["config_files"][key] = c_vals[i]
     if not def_c:
         print "\nWhen finished, please open your config file to set the other config file locations manually.\n"
-    # add a section for the damned unwarpdir variable... sigh
-    if not "nifti_wrangler" in config:
-        config["nifti_wrangler"] = {}
-        config["nifti_wrangler"]["ep_unwarp_dir"] = "x"
-        print "\nWhen finished, please open your config file check the value for ep_unwarp_dir.\n"
+    config["nifti_wrangler"] = {}
+    # ep unwarp policy
+    print "\nIf you have more than one ep fieldmap set, you may either\nwant to use the first, or always use the most recent."
+    ep_sel = numbered_choice(EPFM_SELECTION_OPTS, prompt="Which policy would you like to use:")
+    config["nifti_wrangler"]["ep_fieldmap_selection"] = ep_sel
+    # struct averaging block
+    print "\nIf you collect multiple t1 or t2 images, and averaging them yeilds warped\nresults, try blocking structural image averaging."
+    block_avg = raw_input("\nBlock averaging of structural images [y]/n? ").strip() not in NO_WORDS
+    config["nifti_wrangler"]["block_struct_averaging"] = block_avg
+    # a terrible hack, but take a guess at the unwarp direction
+    uwd = "x"
+    ser = config["series"]
+    if ser.get("fieldmap_ap",None) and ser.get("fieldmap_pa",None):
+        uwd = "y"
+    elif ser.get("fieldmap_rl",None) and ser.get("fieldmap_lr",None):
+        uwd = "x"
+    config["nifti_wrangler"]["ep_unwarp_dir"] = uwd
+    print "\nVery weak guess that your primary unwarp direction is %s.\nDid I mention this is a GUESS?"
+    print "\nWhen finished, please open your config file check the value for ep_unwarp_dir.\n"
     # write the file!
     config.write()
 
@@ -238,7 +253,7 @@ def select_conf():
         raise ValueError("Could not find any .conf files in current directory.")
     if len(confs) == 1:
         return confs[0]
-    return numbered_choice(confs)
+    return numbered_choice(confs, prompt = "There were multiple config files. Please choose.")
 
 def validate_config(conf_dict):
     """ validates the config dict
@@ -253,9 +268,43 @@ def validate_config(conf_dict):
         return False
     return True
 
-def numbered_choice(choices, allow_none=False, skip_list=False):
+def numbered_choice(choices, prompt=None, allow_multiple=False, allow_none=False):
+    import numpy as np
     # TODO: print a choice, return the chosen value
-    return choices[0]
+    if not prompt:
+        prompt = "Options:\n" + "-"*len("Options:")
+    print prompt + "\n"
+    for i, val in enumerate(choices):
+        print "%d: %s" % (i, val)
+    # print "\n"
+    nstr = "[None] or " if allow_none else ""
+    mstr = "comma separated values " if allow_multiple else ""
+    selection = None
+    done = False
+    while not done:
+        try:
+            m = raw_input("\nSelect %s%s0-%d: " % (nstr, mstr, len(choices)-1)).strip()
+            if not m:
+                if allow_none:
+                    selection = None
+                    done = True
+                else:
+                    raise ValueError()
+            else:
+                m = [int(n) for n in m.split(",")]
+                if len(m) > 1 and not allow_multiple:
+                    raise ValueError()
+                if any([n < 0 or n >= len(choices) for n in m]):
+                    raise ValueError()
+                m = np.unique(m)
+                selection = [choices[n] for n in m]
+                if not allow_multiple:
+                    selection = selection[0]
+                done = True
+        except ValueError, e:
+            print "Invalid Selection..."
+            continue
+    return selection
 
 def get_config_dict(conf_path):
     config = ConfigObj(conf_path, unrepr=True)
@@ -324,5 +373,3 @@ def apply_dict_to_obj(the_d, obj, skip_names=[]):
         if name in skip_names or "traits" not in dir(obj) or name not in obj.traits().keys():
             continue
         setattr(obj, name, val)
-
-
