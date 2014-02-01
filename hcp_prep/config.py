@@ -240,7 +240,7 @@ def update_conf(conf_path):
     elif ser.get("fieldmap_rl",None) and ser.get("fieldmap_lr",None):
         uwd = "x"
     config["nifti_wrangler"]["ep_unwarp_dir"] = uwd
-    print "\nVery weak guess that your primary unwarp direction is %s.\nDid I mention this is a GUESS?"
+    print "\nVery weak guess that your primary unwarp direction is %s.\nDid I mention this is a GUESS?" % uwd
     print "\nWhen finished, please open your config file check the value for ep_unwarp_dir.\n"
     # write the file!
     config.write()
