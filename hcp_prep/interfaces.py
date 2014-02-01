@@ -248,6 +248,16 @@ class NiiWranglerInputSpec(BaseInterfaceInputSpec):
             desc="""
             Causes us to only use the first t1 and t2 images. A kludge for
             some data that fails during structural averaging.""")
+    ep_fieldmap_selection = traits.Enum("first","most_recent",
+            mandatory=False, usedefault=True,
+            desc="""
+            If you have more than one set of ep fieldmaps, then you can either
+            use the first set during preprocessing of all bold images
+            ('first'), or you can select the se fieldmap set that was taken
+            most recently prior to acquisition of a given bold image, or -
+            failing that - the first available se fieldmap thereafter
+            ('most_recent')."""
+            )
 
 class NiiWranglerOutputSpec(TraitedSpec):
     t1_structs = OutputMultiPath(
@@ -308,6 +318,8 @@ class NiiWranglerOutputSpec(TraitedSpec):
     ep_unwarp_dirs = traits.List(traits.Enum("x", "x-", "-x", "y", "y-", "-y", "z", "z-", "-z",),
             mandatory=True,
             desc="Length must match number of bold images.")
+
+
 
 class NiiWrangler(BaseInterface):
     input_spec = NiiWranglerInputSpec
@@ -379,8 +391,7 @@ class NiiWrangler(BaseInterface):
         # for now, we only support one se fieldmap pair. In the future, we'll implement
         # a more flexible policy here. This is actually really crappy... but the user can always
         # flip the unwarpdir through config :/
-
-        s_policy = config["nifti_wrangler"].get("ep_fieldmap_selection", "first").lower()
+        s_policy = self.inputs.ep_fieldmap_selection
         pos_types = reduce(operator.add, [smap.get(k, []) for k in POS_FIELDMAPS])
         neg_types = reduce(operator.add, [smap.get(k, []) for k in NEG_FIELDMAPS])
         pos = [d for d in filter(lambda x: sd in x and x[sd] in pos_types, dinfo) if nf in d]
