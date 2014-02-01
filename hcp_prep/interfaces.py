@@ -379,12 +379,34 @@ class NiiWrangler(BaseInterface):
         # for now, we only support one se fieldmap pair. In the future, we'll implement
         # a more flexible policy here. This is actually really crappy... but the user can always
         # flip the unwarpdir through config :/
+
+        s_policy = config["nifti_wrangler"].get("ep_fieldmap_selection", "first").lower()
         pos_types = reduce(operator.add, [smap.get(k, []) for k in POS_FIELDMAPS])
         neg_types = reduce(operator.add, [smap.get(k, []) for k in NEG_FIELDMAPS])
         pos = [d for d in filter(lambda x: sd in x and x[sd] in pos_types, dinfo) if nf in d]
         neg = [d for d in filter(lambda x: sd in x and x[sd] in neg_types, dinfo) if nf in d]
-        self.fieldmaps_pos = [pos[0][nf] for n in self.bolds] if pos else []
-        self.fieldmaps_neg = [neg[0][nf] for n in self.bolds] if pos else []
+        both = zip(pos,neg)
+        if s_policy == "most_recent":
+            pfs = []
+            nfs = []
+            for bold in bolds:
+                sn = bold["series_num"]
+                # we want the last of the images with a lower sn, or the firs tof the images with a higher sn
+                earlier = filter(lambda x: x[0]["series_num"] < sn and x[1]["series_num"] < sn, both)
+                later = filter(lambda x: x[0]["series_num"] < sn and x[1]["series_num"] < sn, both)
+                if earlier:
+                    pfs.append(earlier[-1][0])
+                    nfs.append(earlier[-1][1])
+                elif later:
+                    pfs.append(later[0][0])
+                    nfs.append(later[0][1])
+                else:
+                    print "This... should never happen."
+            self.fieldmaps_pos = pfs
+            self.fieldmaps_neg = nfs
+        else: # default to "first"
+            self.fieldmaps_pos = [pos[0][nf] for n in self.bolds] if pos else []
+            self.fieldmaps_neg = [neg[0][nf] for n in self.bolds] if pos else []
         # we have to do some extra looking at the headers for the mag and phase fieldmaps too
         mag_fs = filter(lambda x: sd in x and
                 x[sd] in smap.get("fieldmap_magnitude",[]) and
