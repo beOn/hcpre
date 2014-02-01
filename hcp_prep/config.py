@@ -229,7 +229,7 @@ def update_conf(conf_path):
     ep_sel = numbered_choice(EPFM_SELECTION_OPTS, prompt="Which policy would you like to use:")
     config["nifti_wrangler"]["ep_fieldmap_selection"] = ep_sel
     # struct averaging block
-    print "\nIf you collect multiple t1 or t2 images, and averaging them yeilds warped\nresults, try blocking structural image averaging."
+    print "\nIf you collect multiple t1 or t2 images, and averaging them yields warped\nresults, try blocking structural image averaging."
     block_avg = raw_input("\nBlock averaging of structural images [y]/n? ").strip() not in NO_WORDS
     config["nifti_wrangler"]["block_struct_averaging"] = block_avg
     # a terrible hack, but take a guess at the unwarp direction
