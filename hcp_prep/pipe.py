@@ -199,8 +199,9 @@ class HCPrepWorkflow(pe.Workflow):
             (self.hc_post_fs, self.hc_surface, [("low_res_mesh", "low_res_mesh")]),
             (self.hc_post_fs, self.hc_surface, [("grayordinates_res", "fmri_res")]),
             (self.hc_post_fs, self.hc_surface, [("grayordinates_res", "grayordinates_res")]),
-            # datasink
-            (self.hc_surface, self.data_sink, [("study_dir", "preprocessed")]),
+            # data join and sink
+            (self.hc_surface, self.data_join, [("study_dir", "preprocessed")]),
+            (self.data_join, self.data_sink, [("preprocessed", "preprocessed")]),
             ])
 
     """ self-inflating nodes """
@@ -342,14 +343,24 @@ class HCPrepWorkflow(pe.Workflow):
         self._hc_surface = val
 
     @property
-    def data_sink(self):
-        if not getattr(self,'_data_sink',None):
-            self._data_sink = pe.JoinNode(
-                    name="data_sink",
-                    interface=nio.DataSink(),
+    def data_join(self):
+        if not getattr(self,'_data_join',None):
+            self._data_join = pe.JoinNode(
+                    name="date_join",
+                    interface=util.IdentityInterface(
+                            fields=["preprocessed"]),
                     joinsource="volume",
                     joinfield=["preprocessed"],
                     unique=True)
+        return self._data_join
+    @data_join.setter
+    def data_join(self, val):
+        self._data_join = val
+
+    @property
+    def data_sink(self):
+        if not getattr(self,'_data_sink',None):
+            self._data_sink = pe.Node(name="data_sink", interface=nio.DataSink())
         return self._data_sink
     @data_sink.setter
     def data_sink(self, val):
