@@ -85,6 +85,9 @@ Inputs::
 		a list of nifti files to be categorized, matched up, etc.
 
 	[Optional]
+	block_struct_averaging: (a boolean, nipype default value: False)
+		 Causes us to only use the first t1 and t2 images. A kludge for
+		 some data that fails during structural averaging.
 	dicom_info: (a list of items which are any value)
 		one dict for each series in the session, in the order they were run.
 		each dict should contain at least the series_num (int) and the
@@ -95,7 +98,16 @@ Inputs::
 		 used. If you're using acceleration, then the EES is not going to
 		 match the 'Echo Spacing' that Siemen's reports in the console.
 		 Setting this value will prevent any attempt to derive it.
-	ep_unwarp_dir: ('x' or 'x-' or 'y' or 'y-' or 'z' or 'z-')
+	ep_fieldmap_selection: ('first' or 'most_recent', nipype default
+		 value: first)
+		 If you have more than one set of ep fieldmaps, then you can either
+		 use the first set during preprocessing of all bold images
+		 ('first'), or you can select the se fieldmap set that was taken
+		 most recently prior to acquisition of a given bold image, or -
+		 failing that - the first available se fieldmap thereafter
+		 ('most_recent').
+	ep_unwarp_dir: ('x' or 'x-' or '-x' or 'y' or 'y-' or '-y' or 'z' or
+		 'z-' or '-z')
 		Setting this value will prevent any attempt to derive it.
 	ignore_exception: (a boolean, nipype default value: False)
 		Print an error message instead of throwing an exception in case the
@@ -126,8 +138,8 @@ Outputs::
 		 same name. Please inspect the value after your initial run of the
 		 pipeline to ensure that it's sane.
 		 Length must match number of bold images.
-	ep_unwarp_dirs: (a list of items which are 'x' or 'x-' or 'y' or 'y-'
-		 or 'z' or 'z-')
+	ep_unwarp_dirs: (a list of items which are 'x' or 'x-' or '-x' or 'y'
+		 or 'y-' or '-y' or 'z' or 'z-' or '-z')
 		Length must match number of bold images.
 	fieldmap_te: ('NONE' or a float, nipype default value: NONE)
 		delta TE in ms for magnitude fieldmap or 'NONE' if not used.
@@ -328,8 +340,8 @@ Inputs::
 		output, `file` - writes output to file, `none` - output is ignored
 	top_up_config: ('NONE' or a file name, nipype default value: NONE)
 		Config for topup or 'NONE' if not used
-	unwarp_dir: ('z' or 'z-' or 'x' or 'x-' or 'y' or 'y-' or 'NONE',
-		 nipype default value: z)
+	unwarp_dir: ('z' or 'z-' or '-z' or 'x' or 'x-' or '-x' or 'y' or
+		 'y-' or '-y' or 'NONE', nipype default value: z)
 		z appears to be best or 'NONE' if not used
 
 Outputs::
@@ -552,8 +564,8 @@ Inputs::
 	top_up_config: ('NONE' or a file name, nipype default value: NONE)
 		Topup config if using TOPUP, set to NONE if using FIELDMAP as
 		distortion_correction_method.
-	unwarp_dir: ('x' or 'x-' or 'y' or 'y-' or 'z' or 'z-', nipype
-		 default value: x)
+	unwarp_dir: ('x' or 'x-' or '-x' or 'y' or 'y-' or '-y' or 'z' or
+		 'z-' or '-z', nipype default value: x)
 
 Outputs::
 
@@ -620,6 +632,8 @@ Inputs::
 
 Outputs::
 
+	study_dir: (a directory name)
+		The study dir. Should contain a subdir named after the subject.
 	subject: (a string)
 		subject id or number, as a string
 
