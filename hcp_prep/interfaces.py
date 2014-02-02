@@ -398,7 +398,7 @@ class NiiWrangler(BaseInterface):
         if s_policy == "most_recent":
             pfs = []
             nfs = []
-            for bold in bolds:
+            for bold in bs:
                 sn = bold["series_num"]
                 # we want the last of the images with a lower sn, or the firs tof the images with a higher sn
                 earlier = filter(lambda x: x[0]["series_num"] < sn and x[1]["series_num"] < sn, both)
