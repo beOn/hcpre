@@ -62,21 +62,21 @@ To build a new config file, call pipe.py with the -i or --init argument. You'll 
 
 We start by initializing a new config file.
 
-bash```
+```bash
 pipe.py --init
 New config file name [hcp.conf]: 
 ```
 
 Decisions decisions - what shall we call the new config file? The square brackets mean that whatever they contain is the default value. So if we just press return, we'll choose the name "hcp.conf". Sounds good to me, so let's just press return. If the file already exists, the script will exit.
 
-bash```
+```bash
 The subjects directory should contain all raw data for all subjects.
 Subjects Directory [./]: /data/nil-external/ccp/MOOD_RISK/DICOMs
 ```
 
 The subjects directory is the lowest directory below which we can find all of your experiment's dicoms. So, if you had dicoms sorted into /some/dir/sub_a, /some/dir/sub_b, etc., then the subjects directory would be /some/dir. Here, I've chosen something appropriate for my current experiment.
 
-bash```
+```bash
 The DICOM template should be a format string for a glob which, when combined with an individual subject ID, will get us all of the subject's DICOM files.
 DICOM template [data/raw_dicom/%s/*.dcm]: DR%s/SCANS/*/DICOM/*.dcm
 ```
@@ -85,7 +85,7 @@ This is perhaps the trickiest one to answer, so I'm going to walk you through it
 
 The first step towards finding my format string is understanding how my data is organized. Let's take a look. We know my subject folder is /data/nil-external/ccp/MOOD_RISK/DICOMs, so let's make a quick exploration of that directory's organization:
 
-bash```
+```bash
 $> ls /data/nil-external/ccp/MOOD_RISK/DICOMs
 DR060  DR061  DR064
 $> ls /data/nil-external/ccp/MOOD_RISK/DICOMs/DR060/
@@ -101,31 +101,31 @@ DR060.MR.Barch_MoodRisk.1.2.20131205.173445.10iky0u.dcm  scan_1_catalog.xml
 
 I might do the same looking into other subjects to verify that the organization is consistent. If that's not the case, you'll need to do some cleanup, then come back to this point. Assuming that we're satisfied on this point for now, we can see that a valid path to a specific dicom might be:
 
-bash```
+```bash
 /data/nil-external/ccp/MOOD_RISK/DICOMs/DR060/SCANS/1/DICOM/DR060.MR.Barch_MoodRisk.1.1.20131205.173445.s02tx.dcm
 ```
 
 So how to we get from here to a list of *all* of the experiments dicoms? First, we make use of the wildcard, *. Because we use this string as what is known as a 'glob,' the character * will be expanded to match any number of characters, with a few exceptions (like '/'). So using this, we can begin to shrink our string:
 
-bash```
+```bash
 /data/nil-external/ccp/MOOD_RISK/DICOMs/DR060/SCANS/*/DICOM/*.dcm
 ```
 
 So here we've used two globs, one to replace the specific file name (we want everything that ends in .dcm), and another to replace the scan number. So now what about the subject number? This case is a little special. Since we want the script to be able to substitute in specific subject numbers, we use a string format specifier here instead of a wildcard. In the case of this data, the pattern seems to be .../DICOMs/DR<SUBJECT_NUMBER>/SCANS..., so let's put a string format specifier in place of the subject number:
 
-bash```
+```bash
 /data/nil-external/ccp/MOOD_RISK/DICOMs/DR%s/SCANS/*/DICOM/*.dcm
 ```
 
 One last change. We don't need to include the subject directory prepended to the DICOM template (in fact, it is important that we do not). So let's get that out of there, leaving us with:
 
-bash```
+```bash
 DR%s/SCANS/*/DICOM/*.dcm
 ```
 
 Which is what we hand to the script! Moving right along:
 
-bash```
+```bash
 Subjects should be a comma separated list of subject ids.
 Subject list ['']: 060, 061, 064
 ```
@@ -134,13 +134,13 @@ Feel free to provide nothing here. If you want to store a particular list of use
 
 After pressing enter, the script will look through all of the DICOM files that it can find. If you need to speed this up, I'll leave it as an exercise for the reader to figure out how to make it so the script only finds one or two subjects worth of data.
 
-bash```
+```bash
 Checking series names (this may take some time) (41 chunks remaining)...
 ```
 
 After it gets to 0, we can start in on the fun stuff! The script will print a numbered list of all the Series Descriptions it was able to find. Our job now is to tell it how to use that information to feed our data through the HCP Pipelines. Let's take a look at what it found in my case:
 
-bash```
+```bash
 Found 25 unique series descriptions.
 -------
 Series:
