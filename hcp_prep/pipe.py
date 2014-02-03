@@ -346,7 +346,7 @@ class HCPrepWorkflow(pe.Workflow):
     def data_join(self):
         if not getattr(self,'_data_join',None):
             self._data_join = pe.JoinNode(
-                    name="date_join",
+                    name="data_join",
                     interface=util.IdentityInterface(
                             fields=["preprocessed"]),
                     joinsource="volume",
