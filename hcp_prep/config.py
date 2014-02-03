@@ -64,7 +64,7 @@ def setup_conf():
         print "File already exists."
         return
     # get the directory containing all data for all subjects
-    print "\nThe subjects diretory should contain all raw data for all subjects."
+    print "\nThe subjects directory should contain all raw data for all subjects."
     subs_dir = raw_input("Subjects Directory [./]: ")
     subs_dir = subs_dir.strip()
     subs_dir = subs_dir if subs_dir else "./"
