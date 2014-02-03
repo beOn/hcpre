@@ -404,11 +404,11 @@ class NiiWrangler(BaseInterface):
                 earlier = filter(lambda x: x[0]["series_num"] < sn and x[1]["series_num"] < sn, both)
                 later = filter(lambda x: x[0]["series_num"] < sn and x[1]["series_num"] < sn, both)
                 if earlier:
-                    pfs.append(earlier[-1][0])
-                    nfs.append(earlier[-1][1])
+                    pfs.append(earlier[-1][0][nf])
+                    nfs.append(earlier[-1][1][nf])
                 elif later:
-                    pfs.append(later[0][0])
-                    nfs.append(later[0][1])
+                    pfs.append(later[0][0][nf])
+                    nfs.append(later[0][1][nf])
                 else:
                     print "This... should never happen."
             self.fieldmaps_pos = pfs
