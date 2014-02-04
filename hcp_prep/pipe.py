@@ -415,7 +415,10 @@ def main(argv=None):
                 out_dir = value
         # select config file
         if not c_file:
-            c_file = select_conf()
+            try:
+                c_file = select_conf()
+            except Exception, e:
+                raise Usage(msg="Could not find a config file.")
         # update if necessary
         if update:
             update_conf(c_file)
@@ -473,7 +476,6 @@ def main(argv=None):
         else:
             print "running single process"
             wk.run()
-
     except Usage, err:
         f_str = sys.argv[0].split("/")[-1] + ":"
         lfs = len(f_str)
