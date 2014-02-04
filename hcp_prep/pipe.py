@@ -200,8 +200,8 @@ class HCPrepWorkflow(pe.Workflow):
             (self.hc_post_fs, self.hc_surface, [("grayordinates_res", "fmri_res")]),
             (self.hc_post_fs, self.hc_surface, [("grayordinates_res", "grayordinates_res")]),
             # data join and sink
-            (self.hc_surface, self.data_join, [("study_dir", "preprocessed")]),
-            (self.data_join, self.data_sink, [("preprocessed", "preprocessed")]),
+            (self.hc_surface, self.data_join, [("study_dir", "inlist")]),
+            (self.data_join, self.data_sink, [("out", "preprocessed")]),
             ])
 
     """ self-inflating nodes """
@@ -345,13 +345,14 @@ class HCPrepWorkflow(pe.Workflow):
     @property
     def data_join(self):
         if not getattr(self,'_data_join',None):
-            self._data_join = pe.JoinNode(
-                    name="data_join",
-                    interface=util.IdentityInterface(
-                            fields=["preprocessed"]),
-                    joinsource="volume",
-                    joinfield=["preprocessed"],
-                    unique=True)
+            # self._data_join = pe.JoinNode(
+            #         name="data_join",
+            #         interface=util.IdentityInterface(
+            #                 fields=["preprocessed"]),
+            #         joinsource="volume",
+            #         joinfield=["preprocessed"],
+            #         unique=True)
+            self._data_join = pe.Node(name="data_join", interface=util.Select(index = 0))
         return self._data_join
     @data_join.setter
     def data_join(self, val):
