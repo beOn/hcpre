@@ -39,6 +39,8 @@ pip install -r requirements.txt
 
 This may take more or less time depending on how many of the dependencies are already installed, the type of environment you're running, and your own level of expertise. If you're working on a community machine, talk to your systems administrator about the contents of this file, whether or not it is already installed, and any modifications that you may need to make to your environment to make sure that it runs correctly. 
 
+You'll also need to install mricron, and make sure that it's dcm2nii DICOM conversion application is on your PATH.
+
 environment variables
 ---------------------
 The HCP Pipelines make heavy use of environment variables - most of that is taken care of by the nipype workflow. But there are still a couple of variables that it's important to set correctly: $FREESURFER_HOME and $FSLDIR. What's more, it's important that you call the FSL and FreeSurfer setup scripts from your .bashrc or .bash_profile file. Check the HCP Pipeline readme for information regarding which particular versions of FreeSurfer and FSL their code currently targets. 
