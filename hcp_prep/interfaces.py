@@ -953,3 +953,46 @@ class SurfaceProcessing(HCPCommand):
         outputs["subject"] = self.inputs.subject
         outputs["study_dir"] = self.inputs.study_dir
         return outputs
+
+class OutputSelectorInputSpec(BaseInterfaceInputSpec):
+    study_dir = Directory(
+            desc="The study dir. Should contain a subdir named after the subject.")
+    output_mni_only = traits.Bool(True,
+            mandatory=False, usedefault=True,
+            desc = """
+            To save space, by default we only output the pipeline's final
+            product. If you need to look at the precursor files, then just set
+            this to false... and prepare your drives to go to that big server
+            farm in the sky.
+            """)
+
+class OutputSelectorOutputSpec(TraitedSpec):
+    output_dir = Directory(
+            desc="Either the full study dir, or just the MNINonLinear dir (default).")
+
+class OutputSelector(BaseInterface):
+    input_spec = OutputSelectorInputSpec
+    output_spec = OutputSelectorOutputSpec
+    out_dir = None
+    def _run_interface(self, runtime):
+        from glob import glob
+        od = self.inputs.study_dir
+        if not self.inputs.output_mni_only:
+            self.out_dir = od
+        else:
+            glob_str = os.path.join(study_dir, '*', 'MNINonLinear')
+            mni_dirs = glob(glob_str)
+            if not mni_dirs:
+                raise ValueError("Could not find MNINonLinear output dir in %s" % glob_str)
+            self.out_dir = mni_dirs[0]
+        return runtime
+
+    def _list_outputs(self):
+        from glob import glob
+        outputs = self._outputs().get()
+        outputs["output_dir"] = self.out_dir
+        return outputs
+
+
+
+

@@ -242,6 +242,13 @@ def update_conf(conf_path):
     config["nifti_wrangler"]["ep_unwarp_dir"] = uwd
     print "\nVery weak guess that your primary unwarp direction is %s.\nDid I mention this is a GUESS?" % uwd
     print "\nWhen finished, please open your config file check the value for ep_unwarp_dir.\n"
+    # output level selection
+    print """
+    By default, we only output the MNINonLinear results folder (recommended, for
+    the sake of your drive capacity). If you want to check out the full outputs,
+    including all of the precursor files, set output_mni_only to False in the
+    config file."""
+    config["output_select"] = {"output_mni_only":True}
     # write the file!
     config.write()
 
