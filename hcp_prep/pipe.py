@@ -137,6 +137,7 @@ class HCPrepWorkflow(pe.Workflow):
         apply_dict_to_obj(self.hc_config.get("post_freesurfer", {}), self.hc_post_fs.inputs)
         apply_dict_to_obj(self.hc_config.get("volume_processing", {}), self.hc_volume.inputs)
         apply_dict_to_obj(self.hc_config.get("surface_processing", {}), self.hc_surface.inputs)
+        apply_dict_to_obj(self.hc_config.get("output_select", {}), self.output_select.inputs)
 
     def run(self, *args, **kwargs):
         self.connect_nodes()
