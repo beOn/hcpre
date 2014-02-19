@@ -203,7 +203,7 @@ class HCPrepWorkflow(pe.Workflow):
             # data join and sink
             (self.hc_surface, self.data_join, [("study_dir", "inlist")]),
             (self.data_join, self.output_select, [("out", "study_dir")]),
-            (self.data_join, self.data_sink, [("output_dir", "preprocessed")]),
+            (self.output_select, self.data_sink, [("output_dir", "preprocessed")]),
             ])
 
     """ self-inflating nodes """
