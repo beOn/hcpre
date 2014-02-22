@@ -980,7 +980,7 @@ class OutputSelector(BaseInterface):
         if not self.inputs.output_mni_only:
             self.out_dir = od
         else:
-            glob_str = os.path.join(study_dir, '*', 'MNINonLinear')
+            glob_str = os.path.join(od, '*', 'MNINonLinear')
             mni_dirs = glob(glob_str)
             if not mni_dirs:
                 raise ValueError("Could not find MNINonLinear output dir in %s" % glob_str)
