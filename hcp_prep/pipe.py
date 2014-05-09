@@ -18,9 +18,9 @@ import nipype.interfaces.io as nio           # Data i/o
 import nipype.interfaces.utility as util     # utility
 import nipype.pipeline.engine as pe          # pypeline engine
 
-from hcp_prep.config import *
-from hcp_prep.interfaces import *
-from hcp_prep.util import *
+from config import *
+from interfaces import *
+from util import *
 
 help_message = """
 Implements the HCPrepWorkflow, provides command line tools to build and work
@@ -53,8 +53,7 @@ Parameters
     The number of threads you would like to use. Higher numbers are faster to
     a point, but depending on how large your data is (chances are, it is quite
     large), you may well want to limit yourself to something below 8 for
-    starters if you're working on a large server. I haven't added command line
-    support for clusters yet, but it'll come soon. Default is 1. Ignored if
+    starters if you're working on a large server. Default is 1. Ignored if
     you use -p.
 -p, --pbs
     Causes nipype to try to use the PBS plugin. For use on the cluster only.

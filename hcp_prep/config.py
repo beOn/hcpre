@@ -1,6 +1,6 @@
 import os
 import sys
-from hcp_prep.util import *
+from util import *
 from multiprocessing import Pool, cpu_count
 from configobj import ConfigObj
 
@@ -315,24 +315,6 @@ def numbered_choice(choices, prompt=None, allow_multiple=False, allow_none=False
 
 def get_config_dict(conf_path):
     config = ConfigObj(conf_path, unrepr=True)
-    # # default section isn't in .sections(), so we'll grab it here
-    # confd = {'default':dict(config.defaults())}
-    # dks = confd['default'].keys()
-    # for sect in config.sections():
-    #     confd[sect] = dict([t for t in config.items(sect) if not t[0] in dks])
-    # # turn subjects into a proper list
-    # ds = confd["general"].get("subjects", None)
-    # if ds:
-    #     confd["general"]["subjects"] = [a.strip() for a in ds.split(",")]
-    # # turn series description mappings into lists
-    # ss = confd.get("series", None)
-    # if ss:
-    #     for k, v in ss.iteritems():
-    #         ss[k] = [a.strip() for a in v.split(",")] if v and isinstance(v,str) else []
-    #     confd["series"] = ss
-    # # this needs to be a bool (we need to switch to json...)
-    # if "nifti_wrangler" in confd and "block_struct_averaging" in confd["nifti_wrangler"]:
-    #     confd["nifti_wrangler"]["block_struct_averaging"] = confd["nifti_wrangler"]["block_struct_averaging"] in YES_WORDS
     return config
 
 def get_hcp_env_for_config(conf_dict):
