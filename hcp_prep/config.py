@@ -78,7 +78,7 @@ def setup_conf():
     dcm_temp = dcm_temp if dcm_temp else "data/raw_dicom/%s/*.dcm"
     dcm_temp = dcm_temp if ".dcm" in dcm_temp else os.path.join(dcm_temp, "*.dcm")
     # get a list of subjects
-    print "Subjects should be a comma separated list of subject ids.\nPlease enter at least one number."
+    print "\nSubjects should be a comma separated list of subject ids."
     subs = raw_input("Subject list ['']: ")
     subs = subs.strip()
     # set up config obj
