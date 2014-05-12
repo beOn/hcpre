@@ -45,12 +45,37 @@ hcprep (this project)
 This project was developed for python versions > 2.7 and < 3.0, Nipype >
 0.9.1.
 
-To get the latest release, install nipype, then hcpre using pip:
+To get the latest release, install nipype, then hcpre using pip. The nipype
+installation is a little obnoxious right now. You can either check their
+install documentation, or go ahead and call ```pip install hcpre``` then check
+the errors to see what dependencies you're missing. The first time you run it,
+for example, you may get an error like:
+
+```
+Need nisext package from nibabel installation - please install nibabel first
+```
+
+Okay. So call ```pip install nibabel```, then call ```pip install hcpre```
+again. That'll get you the next error. Perhaps it'll be one of these:
 
 ```bash
-pip install nipype
+RuntimeError: Cannot import package "networkx" - is it installed?
+# or
+RuntimeError: Cannot import package "scipy" - is it installed?
+```
+
+So, once again, call ```pip install X``` where X is ```networkx```, or
+```scipy```, or whatever it tells you is missing. I know this stinks, and
+believe me I have tried to make this dependency install cleanly, but had to
+throw in the towel (for now). Numpy and scipy can take a while to build, but
+hopefully this process won't take too long, and eventually this
+command will work:
+
+```bash
 pip install hcpre
 ```
+
+Once that works, you should get yourself a beer. I sure did.
 
 To install the development version, clone this repository to your machine, and
 update your PATH and PYTHONPATH variables, or run setup.py manually
@@ -65,20 +90,19 @@ cd /path/to/hcpre
 python setup.py install
 ```
 
-If you're missing python requirements, use the requirements.txt file and pip:
+You can also try using the requirements.txt file to install dependencies using
+pip. Again, you may have to pip install some stuff one-by-one.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-This may take more or less time depending on how many of the dependencies are
-already installed, the type of environment you're running, and your own level
-of expertise. If you're working on a community machine, talk to your systems
-administrator about the contents of requirements.txt, whether or not they're
+If you're working on a community machine, talk to your systems administrator
+about the contents of requirements.txt, whether or not these dependencies are
 already installed, and any modifications that you may need to make to your
-environment to make sure that it runs correctly.
+environment to make sure that they're on your PYTHONPATH.
 
-You'll also need to install mricron, and make sure that it's dcm2nii DICOM
+You'll also need to install mricron, and make sure that its dcm2nii DICOM
 conversion application is on your PATH.
 
 Environment Variables
