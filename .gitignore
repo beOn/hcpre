@@ -21,3 +21,7 @@ ben_acland/notebooks/eyetracking/*.png
 *.fidl
 
 /hcpre.egg-info/
+
+/dist/
+
+/build/
