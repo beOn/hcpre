@@ -26,6 +26,7 @@ setup(name='hcpre',
       install_requires=['pydicom','nibabel','networkx','traits','nipype','configobj'],
       packages=['hcpre'],
       scripts=['hcpre/hcpre.py'],
+      package_data={'hcpre':['duke_siemens/*']},
       long_description=get_readme(),
       classifiers=[
         'Development Status :: 3 - Alpha',
