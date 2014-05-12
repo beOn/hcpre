@@ -19,3 +19,5 @@ ben_acland/notebooks/eyetracking/*.png
 /ben_acland/notebooks/pup_bucket/*/
 
 *.fidl
+
+/hcpre.egg-info/
