@@ -2,9 +2,9 @@ import nipype.interfaces.io as nio           # Data i/o
 import nipype.interfaces.utility as util     # utility
 import nipype.pipeline.engine as pe          # pypeline engine
 
-from interfaces import *
-from config import *
-from util import *
+from hcpre.interfaces import *
+from hcpre.config import *
+from hcpre.util import *
 
 # TODO: validate these guesses... user may need to look at an image and flip an option if necessary
 # Positive fieldmaps: RL, AP

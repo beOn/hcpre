@@ -10,8 +10,8 @@ from traits.trait_errors import TraitError
 import nipype.interfaces.dcm2nii as d2n
 from duke_siemens.util_dicom_siemens import read as read_siemens_shadow
 
-from util import *
-from config import *
+from hcpre.util import *
+from hcpre.config import *
 
 class GatherFilesInputSpec(BaseInterfaceInputSpec):
     files = InputMultiPath(

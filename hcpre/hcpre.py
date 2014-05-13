@@ -11,7 +11,7 @@ import os
 import sys
 import getopt
 
-from workflows import *
+from hcpre.workflows import *
 
 help_message = """
 Provides command line tools to build and work on workflow confiuration files,

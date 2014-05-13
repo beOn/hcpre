@@ -1,8 +1,9 @@
 import os
 import sys
-from util import *
 from multiprocessing import Pool, cpu_count
 from configobj import ConfigObj
+
+from hcpre.util import *
 
 SCAN_TYPES = [
     "bold",
