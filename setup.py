@@ -15,7 +15,7 @@ def get_readme():
     return d
 
 setup(name='hcpre',
-      version='0.5.0',
+      version='0.5.1',
       author='Ben Acland',
       author_email='benacland@gmail.com',
       description='Generalized launcher for human connectome project BOLD preprocessing',
