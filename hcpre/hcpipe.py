@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 """
-hcpre.py
+hcpipe.py
 
 Copyright (c) 2013 Ben Acland
 """

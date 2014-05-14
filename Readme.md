@@ -119,7 +119,7 @@ FreeSurfer and FSL their code currently targets.
 Running the Pipeline
 ====================
 
-The file that contains the nipype workflow, hcpre.py, can be called as a
+The file that contains the nipype workflow, hcpipe.py, can be called as a
 command line script. See the section on configuration, then when you're ready
 to run pass the -r argument, along with any others you choose to use (see
 below).
@@ -127,18 +127,18 @@ below).
 For help, call:
 
 ```bash
-hcpre.py --help
+hcpipe.py --help
 ```
 
 Configuring the Pipeline
 ========================
 
 We currently use [configobj](https://pypi.python.org/pypi/configobj/) to write
-and read files. hcpre.py includes some tools to help you build and update
+and read files. hcpipe.py includes some tools to help you build and update
 config files pretty quickly, but since they're plain text you can always open
 them up with a text editor and change them by hand (more on this below).
 
-To build a new config file, call hcpre.py with the -i or --init argument.
+To build a new config file, call hcpipe.py with the -i or --init argument.
 You'll be walked throught the creation of a new config file. You'll want to
 have already downloaded your data, and you should be sure that you have run
 the freesurfer and fsl setup scripts. You'll also need to know the path to the
@@ -152,7 +152,7 @@ Configuration Walkthrough
 We start by initializing a new config file.
 
 ```
-hcpre.py --init
+hcpipe.py --init
 New config file name [hcp.conf]:
 ```
 
@@ -255,7 +255,7 @@ Subject list ['']: 060, 061, 064
 Feel free to provide nothing here. If you want to store a particular list of
 users to whom this config script should be applied, you can supply them here
 or later by hand. You can also specify them on the command line when you call
-hcpre.py using the -s parameter.
+hcpipe.py using the -s parameter.
 
 After pressing enter, the script will look through all of the DICOM files that
 it can find. If you need to speed this up, I'll leave it as an exercise for
@@ -449,7 +449,7 @@ to x, or from y to -y, or any other combination. You might even try z in a
 pinch - but I wouldn't try it first!
 
 That's it for the config script at this point. To re-run the later part
-(optionally skipping the series mapping), call hcpre.py -u or hcpre.py --update.
+(optionally skipping the series mapping), call hcpipe.py -u or hcpipe.py --update.
 
 Config by Hand
 --------------
