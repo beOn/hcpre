@@ -95,7 +95,7 @@ def setup_conf():
 
 def get_series_desc(dicom_path):
     import dicom
-    d = dicom.read_file(dicom_path)
+    d = dicom.read_file(dicom_path, stop_before_pixels=True)
     sd = getattr(d, "SeriesDescription", None)
     return sd
 
@@ -138,7 +138,7 @@ def update_conf(conf_path):
         s = config["general"]["subject_dir"]
         t = config["general"]["dicom_template"] % "*"
         dicoms = glob(os.path.join(s,t))
-        message = "\rChecking series names (this may take some time) %s"
+        message = "\rChecking series names (this may several minutes) %s"
         dcm_count = len(dicoms)
         pool = Pool(processes=min(15, int(round(cpu_count() * .75))))
         result = pool.map_async(get_series_desc, dicoms)
