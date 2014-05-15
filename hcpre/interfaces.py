@@ -28,7 +28,11 @@ class GatherFilesOutputSpec(TraitedSpec):
 class GatherFiles(BaseInterface):
     input_spec = GatherFilesInputSpec
     output_spec = GatherFilesOutputSpec
-    d_files = []
+
+    def __init__(self, *args, **kwargs):
+        super(GatherFiles, self).__init__(*args, **kwargs)
+        self.d_files = []
+
     def _run_interface(self, runtime):
         import os
         files = self.inputs.files
@@ -121,7 +125,11 @@ class DicomInfoOutputSpec(TraitedSpec):
 class DicomInfo(BaseInterface):
     input_spec = DicomInfoInputSpec
     output_spec = DicomInfoOutputSpec
-    info = []
+
+    def __init__(self, *args, **kwargs):
+        super(DicomInfo, self).__init__(*args, **kwargs)
+        self.info = []
+
     def _run_interface(self, runtime):
         import dicom
         files = self.inputs.files
@@ -322,20 +330,24 @@ class NiiWranglerOutputSpec(TraitedSpec):
 class NiiWrangler(BaseInterface):
     input_spec = NiiWranglerInputSpec
     output_spec = NiiWranglerOutputSpec
-    t1_files = []
-    t2_files = []
-    bolds = []
-    bold_names = []
-    sbrefs = []
-    fieldmap_pos = []
-    fieldmap_neg = []
-    fieldmap_mag = []
-    fieldmap_ph = []
-    fieldmap_mag_delta_te = "NONE"
-    t1_sample_spacing = 0.
-    t2_sample_spacing = 0.
-    ep_e_spaces = None
-    ep_unwarp_dirs = None
+
+    def __init__(self, *args, **kwargs):
+        super(NiiWrangler, self).__init__(*args, **kwargs)
+        self.t1_files = []
+        self.t2_files = []
+        self.bolds = []
+        self.bold_names = []
+        self.sbrefs = []
+        self.fieldmap_pos = []
+        self.fieldmap_neg = []
+        self.fieldmap_mag = []
+        self.fieldmap_ph = []
+        self.fieldmap_mag_delta_te = "NONE"
+        self.t1_sample_spacing = 0.
+        self.t2_sample_spacing = 0.
+        self.ep_e_spaces = None
+        self.ep_unwarp_dirs = None
+
     def _run_interface(self, runtime):
         import re
         import operator
@@ -973,7 +985,11 @@ class OutputSelectorOutputSpec(TraitedSpec):
 class OutputSelector(BaseInterface):
     input_spec = OutputSelectorInputSpec
     output_spec = OutputSelectorOutputSpec
-    out_dir = None
+
+    def __init__(self, *args, **kwargs):
+        super(NiiWrangler, self).__init__(*args, **kwargs)
+        self.out_dir = None
+
     def _run_interface(self, runtime):
         from glob import glob
         od = self.inputs.study_dir
