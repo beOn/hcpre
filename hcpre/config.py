@@ -95,7 +95,7 @@ def setup_conf():
 
 def get_series_desc(dicom_path):
     import dicom
-    d = dicom.read_file(dicom_path)
+    d = dicom.read_file(dicom_path, stop_before_pixels=True)
     sd = getattr(d, "SeriesDescription", None)
     return sd
 
