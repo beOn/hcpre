@@ -323,7 +323,7 @@ def get_hcp_env_for_config(conf_dict):
     # hint: we call this from the validation method!
     d = conf_dict["DEFAULT"]
     dp = lambda x: os.path.join(d["hcp_dir"], x)
-    return {
+    new_d = {
         "FSLDIR":d["fsl_dir"],
         "FREESURFER":d["freesurfer_home"],
         "HCPPIPEDIR":d["hcp_dir"],
@@ -343,6 +343,9 @@ def get_hcp_env_for_config(conf_dict):
         "HCPPIPEDIR_tfMRIAnalysis":dp("TaskfMRIAnalysis/scripts"),
         "MSMBin":dp("MSMBinaries"),
         }
+    new_d.update(conf_dict.get("env",{}))
+    return new_d
+
 
 def get_hcp_commands_for_config(conf_dict):
     # exceptions will be raised if config isn't good.

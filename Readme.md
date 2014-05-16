@@ -492,6 +492,24 @@ Take note that not all attributes are config-file-settable. Those that are not
 include those that are derived at runtime. This list is undocumented at the
 moment.
 
+Customizing Pipeline Environment Variables
+------------------------------------------
+
+Each of the HCP Pipeline interfaces takes a dictionary of environment
+variables to be set before calling the HCP script. Take a look at the
+```get_hcp_env_for_config``` method for a list of variables that get set. To
+override any of these, or add additional environment variables, add an
+```env``` section to your config file.
+
+You might find this particularly handy if you're using a version of caret
+(provided by the connectome workbench). In this case, you'll need to override
+the default value for CARET7DIR. For example, on a Mac, you might do like so:
+
+```
+[env]
+CARET7DIR = '/Applications/workbench/bin_macosx64'
+```
+
 Validation
 ----------
 
