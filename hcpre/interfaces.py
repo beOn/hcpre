@@ -801,7 +801,7 @@ class PostFSInputSpec(HCPCommandInputSpec):
     ref_myelin_maps = InputMultiPath(File(exists=True),
             mandatory=True, position=9, argstr='--refmyelinmaps="%s"',
             desc="")
-    reg_name = traits.Enum("FS", "MSMSulc",
+    reg_name = traits.Enum("FS", "MSMSulc", "MSMAll",
             default="FS", mandatory=False, usedefault=True, position=10, argstr='--regname=%s',
             desc="MSMSulc is recommended, if binary is not available use FS (FreeSurfer)")
     print_com = traits.Enum("","echo",
@@ -950,6 +950,9 @@ class SurfaceProcessingInputSpec(HCPCommandInputSpec):
             Needs to match what is in PostFS. Usually 2mm. Could be the same
             as FinalfRMIResolution or something different, which will call a
             different module for subcortical processing.""")
+    reg_name = traits.Enum("FS", "MSMSulc", "MSMAll",
+            default="FS", mandatory=False, usedefault=True, position=7, argstr='--regname=%s',
+            desc="MSMSulc is recommended, if binary is not available use FS (FreeSurfer)")
 
 class SurfaceProcessingOutputSpec(HCPCommandOutputSpec):
     study_dir = Directory(
