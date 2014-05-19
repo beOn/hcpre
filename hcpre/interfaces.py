@@ -990,7 +990,7 @@ class OutputSelector(BaseInterface):
     output_spec = OutputSelectorOutputSpec
 
     def __init__(self, *args, **kwargs):
-        super(NiiWrangler, self).__init__(*args, **kwargs)
+        super(OutputSelector, self).__init__(*args, **kwargs)
         self.out_dir = None
 
     def _run_interface(self, runtime):
