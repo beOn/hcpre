@@ -510,6 +510,18 @@ the default value for CARET7DIR. For example, on a Mac, you might do like so:
 CARET7DIR = '/Applications/workbench/bin_macosx64'
 ```
 
+Keeping the Analysis By-products
+--------------------------------
+
+By default, the pipeline does not keep all of the files generated in the
+course of analysis. If you want to keep them all, open your config file and
+set the following to false:
+
+```
+[output_select]
+output_mni_only = True
+```
+
 Validation
 ----------
 
