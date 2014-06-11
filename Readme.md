@@ -237,6 +237,9 @@ string format specifier in place of the subject number:
 /data/nil-external/ccp/MOOD_RISK/DICOMs/DR%s/SCANS/*/DICOM/*.dcm
 ```
 
+Note that you must use ```%s``` here - not ```%d```, even if all your subject
+numbers are, in fact, numbers.
+
 One last change. We don't need to include the subject directory prepended to
 the DICOM template (in fact, it is important that we do not). So let's get
 that out of there, leaving us with:
