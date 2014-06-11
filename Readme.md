@@ -43,7 +43,7 @@ hcprep (this project)
 ---------------------
 
 This project was developed for python versions > 2.7 and < 3.0, Nipype >
-0.9.1.
+0.9.2.
 
 To get the latest release, install nipype, then hcpre using pip. The nipype
 installation is a little obnoxious right now. You can either check their
