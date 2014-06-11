@@ -98,10 +98,8 @@ class HCPrepWorkflow(pe.Workflow):
         self.connect([
             # prep steps
             (self.subjects_node, self.dicom_grabber, [("subject", "subject")]),
-            (self.dicom_grabber, self.dicom_gather, [("dicom", "files")]),
-            (self.dicom_gather, self.dicom_select, [("links", "inlist")]),
-            (self.dicom_select, self.dicom_convert, [("out", "source_names")]),
-            (self.dicom_gather, self.dicom_info, [("links", "files")]),
+            (self.dicom_grabber, self.dicom_convert, [("dicom", "source_names")]),
+            (self.dicom_grabber, self.dicom_info, [("dicom", "files")]),
             (self.dicom_convert, self.nii_wrangler, [("converted_files", "nii_files")]),
             (self.dicom_info, self.nii_wrangler, [("info", "dicom_info")]),
             # pre freesurfer
@@ -175,15 +173,6 @@ class HCPrepWorkflow(pe.Workflow):
     @dicom_grabber.setter
     def dicom_grabber(self, val):
         self._dicom_grabber = val
-
-    @property
-    def dicom_gather(self):
-        if not getattr(self,'_dicom_gather',None):
-            self._dicom_gather = pe.Node(name='dicom_gather', interface=GatherFiles())
-        return self._dicom_gather
-    @dicom_gather.setter
-    def dicom_gather(self, val):
-        self._dicom_gather = val
 
     @property
     def dicom_convert(self):

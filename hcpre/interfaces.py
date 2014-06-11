@@ -13,45 +13,6 @@ from duke_siemens.util_dicom_siemens import read as read_siemens_shadow
 from hcpre.util import *
 from hcpre.config import *
 
-class GatherFilesInputSpec(BaseInterfaceInputSpec):
-    files = InputMultiPath(
-            traits.Either(traits.List(File(exists=True)),File(exists=True)),
-            mandatory=True,
-            desc="a list of files you would like to gather into one directory with symlinks",
-            copyfile=False)
-
-class GatherFilesOutputSpec(TraitedSpec):
-    links = OutputMultiPath(
-            traits.List(File(exists=True)),
-            desc="a list of files, all in the same directory.")
-
-class GatherFiles(BaseInterface):
-    input_spec = GatherFilesInputSpec
-    output_spec = GatherFilesOutputSpec
-
-    def __init__(self, *args, **kwargs):
-        super(GatherFiles, self).__init__(*args, **kwargs)
-        self.d_files = []
-
-    def _run_interface(self, runtime):
-        import os
-        files = self.inputs.files
-        new_dir = os.path.abspath("link_dir")
-        if not os.path.exists(new_dir):
-            os.mkdir(new_dir)
-        for f in files:
-            fname = os.path.split(f)[-1]
-            os.link(f, os.path.join(new_dir, fname))
-        return runtime
-
-    def _list_outputs(self):
-        from glob import glob
-        import os
-        outputs = self._outputs().get()
-        ls = glob(os.path.join(os.path.abspath("."), "link_dir","*"))
-        outputs["links"] = ls
-        return outputs
-
 class HCDcm2nii(d2n.Dcm2nii):
     """ We override to fix a bug in output listing... """
     def _parse_stdout(self, stdout):
