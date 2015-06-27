@@ -39,8 +39,8 @@ installation for every user. Check around with anyone else who uses the
 systems you're planning to use who might also use the HCP Pipelines. If
 they're already installed, it'll save you some pain.
 
-hcprep (this project)
----------------------
+hcpre (this project)
+--------------------
 
 This project was developed for python versions > 2.7 and < 3.0, Nipype >
 0.9.2.
