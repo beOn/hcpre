@@ -34,7 +34,7 @@ you call from the command line is the first version found on your python path,
 otherwise you might see some crashes.
 
 One final note: because the HCP Pipelines include some pretty large files,
-your systems admin would probably appriciate it if there weren't a new
+your systems admin would probably appreciate it if there weren't a new
 installation for every user. Check around with anyone else who uses the
 systems you're planning to use who might also use the HCP Pipelines. If
 they're already installed, it'll save you some pain.
@@ -139,14 +139,14 @@ config files pretty quickly, but since they're plain text you can always open
 them up with a text editor and change them by hand (more on this below).
 
 To build a new config file, call hcpipe.py with the -i or --init argument.
-You'll be walked throught the creation of a new config file. You'll want to
+You'll be walked through the creation of a new config file. You'll want to
 have already downloaded your data, and you should be sure that you have run
 the freesurfer and fsl setup scripts. You'll also need to know the path to the
 HCP Pipeline code. Let's quickly walk through the config steps as they are
 now. I'll take some time to discuss each of the questions, and how to figure
 out the appropriate answers.
 
-Configuration Walkthrough
+Configuration Walk-through
 -------------------------
 
 We start by initializing a new config file.
@@ -216,7 +216,7 @@ dicom might be:
 ```
 
 So how to we get from here to a list of *all* of the experiments dicoms?
-First, we make use of the wildcard, ```*```. Because we use this string as
+First, we make use of the wild-card, ```*```. Because we use this string as
 what is known as a 'glob,' the character * will be expanded to match any
 number of characters, with a few exceptions (like '/'). So using this, we can
 begin to shrink our string:
@@ -229,7 +229,7 @@ So here we've used two globs, one to replace the specific file name (we want
 everything that ends in .dcm), and another to replace the scan number. So now
 what about the subject number? This case is a little special. Since we want
 the script to be able to substitute in specific subject numbers, we use a
-string format specifier here instead of a wildcard. In the case of this data,
+string format specifier here instead of a wild-card. In the case of this data,
 the pattern seems to be ```.../DICOMs/DR<SUBJECT_NUMBER>/SCANS...```, so let's put a
 string format specifier in place of the subject number:
 
@@ -461,7 +461,7 @@ If you choose to edit the config file by hand, please note that we use
 configobj in unrepr mode, which means that it expects the values to be in
 python format. The means that strings "need to be quoted," lists
 ["must","be","in","brackets"], and other primitives like 2.3 (floats), 2
-(integets), True and False (boolean values) can be used just as you would use
+(integers), True and False (boolean values) can be used just as you would use
 them in a python script.
 
 Customizing Node Configuration
@@ -544,4 +544,5 @@ using.
 Reporting Bugs
 ==============
 
-Please use the githup isses tab for bug reports and feature requests.
+Please use the github issues tab for bug reports and feature requests.
+
